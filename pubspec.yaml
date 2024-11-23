@@ -1,0 +1,133 @@
+name: bountains
+description: "A new Flutter project."
+# The following line prevents the package from being accidentally published to
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  animated_snack_bar:
+  animated_switcher_plus:
+  awesome_notifications:
+  awesome_notifications_core:
+
+  cached_network_image:
+  chat_bubbles:
+  chatview:
+  connectivity_plus:
+
+  device_preview: ^1.2.0
+  dio:
+  dropdown_button2:
+
+  equatable:
+
+  faker: ^2.2.0
+  file_picker:
+  flex_color_scheme:
+  flutter_boxicons:
+  flutter_launcher_icons:
+  flutter_localization:
+  flutter_native_splash:
+  flutter_otp_text_field:
+  flutter_riverpod:
+  flutter_screenutil:
+  flutter_spinkit:
+  flutter_staggered_animations:
+  flutter_svg:
+  fpdart:
+  fui_kit: ^2.0.2
+
+  get_it:
+  go_router:
+  google_sign_in: ^6.2.1
+
+  iconsax_plus:
+  image_picker:
+  intl:
+  intl_phone_field: ^3.2.0
+  isar: ^3.1.0+1
+  isar_flutter_libs:
+
+  path_provider:
+
+  shared_preferences:
+  skeletonizer:
+  socket_io_client:
+
+  timeago:
+
+  video_player:
+
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  build_runner:
+  flutter_lints: ^4.0.0
+  isar_generator: ^3.1.0+1
+
+flutter_launcher_icons:
+  image_path_android: "assets/images/L11A.png"
+  image_path_ios: "assets/images/L11A.png"
+  android: true
+  ios: true
+  adaptive_icon_background: "#0054C2"
+  adaptive_icon_foreground: "assets/images/L11A.png"
+  min_sdk_android: 29
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+  color: "#012E2B"
+
+  android_12:
+    color: "#012E2B"
+
+
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
+
+# The following section is specific to Flutter packages.
+flutter:
+
+  generate: true
+
+  uses-material-design: true
+
+  assets:
+     - assets/images/
+     - assets/videos/
+
+  fonts:
+   - family: InstrumentSans
+     fonts:
+       - asset: assets/fonts/InstrumentSans-Bold.ttf
+       - asset: assets/fonts/InstrumentSans-Medium.ttf
+       - asset: assets/fonts/InstrumentSans-Regular.ttf
+       - asset: assets/fonts/InstrumentSans-SemiBold.ttf
+
+
+  
