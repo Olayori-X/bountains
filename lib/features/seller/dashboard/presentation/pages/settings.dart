@@ -1,18 +1,26 @@
 import 'package:bountains/core/ui/ui.dart';
+import 'package:bountains/features/seller/auth/domain/entities/user.dart';
+import 'package:bountains/features/seller/auth/presentation/provider/login_provider.dart';
 import 'package:bountains/features/seller/dashboard/presentation/pages/dashboard.dart';
-import 'package:bountains/features/seller/dashboard/presentation/pages/meals/meals.dart';
-import 'package:bountains/features/seller/dashboard/presentation/pages/orders.dart';
+import 'package:bountains/features/seller/dashboard/presentation/widgets/change_user_details_text_field.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:iconsax_plus/iconsax_plus.dart';
 
-class Settings extends StatefulWidget {
+class Settings extends ConsumerStatefulWidget {
   const Settings({super.key});
 
   @override
-  State<Settings> createState() => _SettingsState();
+  ConsumerState<Settings> createState() => _SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsState extends ConsumerState<Settings> {
+  bool _passwordVisible = true;
+  bool _newPasswordVisible = true;
+  bool _passwordConfirmVisible = true;
+
   final List<String> _categories = [
     'All',
     'Pending',
@@ -23,556 +31,306 @@ class _SettingsState extends State<Settings> {
   String? _selectedCategory; //TODO this will chamge too
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _mealController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmNewPasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(
-      context,
-      designSize: Size(100, 200), // Design size (your UI design resolution)
-      // allowFontScaling: false, // Disable font scaling
-    );
-    return Scaffold(
-      appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Text(
-            'Settings',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.bold,
-              fontSize: ScreenUtil().setSp(5),
-              color: Colors.black, // Set your preferred text color here
-            ),
-          )),
-      bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SellerDashboard()),
-              );
-            },
-            icon: Icon(
-              Icons.home_rounded,
-              size: 45,
-            ),
-            color: AppColors.mainColor,
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Orders()),
-              );
-            },
-            icon: Icon(
-              Icons.notes, //TODO to change later
-              size: 45,
-            ),
-            color: AppColors.mainColor,
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Meal()),
-              );
-            },
-            icon: Icon(
-              Icons.cookie, //TODO to change later
-              size: 45,
-            ),
-            color: AppColors.mainColor,
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Settings()),
-              );
-            },
-            icon: Icon(
-              Icons.settings_accessibility, //TODO to change later
-              size: 45,
-            ),
-            color: AppColors.mainColor,
-          ),
-        ],
+    final User? user = ref.watch(loginResponseProvider);
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: ScreenUtil().setHeight(6),
+        horizontal: ScreenUtil().setWidth(4),
       ),
-      body: Container(
-        padding: EdgeInsets.symmetric(
-          vertical: ScreenUtil().setHeight(6),
-          horizontal: ScreenUtil().setWidth(4),
-        ),
-        color: Colors.white,
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SellerDashboard(),
-                      ),
-                    );
-                  },
+      color: Colors.white,
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  padding: EdgeInsets.all(0),
+                ),
+                child: CircleAvatar(
+                  radius: 35,
+                  backgroundColor: Colors.grey[300],
+                  backgroundImage:
+                      user?.picture != null && user!.picture!.isNotEmpty
+                          ? CachedNetworkImageProvider(user.picture!)
+                          : null,
+                  child: user?.picture == null || user!.picture!.isEmpty
+                      ? Icon(Icons.person, color: Colors.grey[700])
+                      : null,
+                ),
+              ),
+              SizedBox(height: 11.h),
+              settingsTextField(
+                ref: ref,
+                labelText: "Username",
+                controller: _usernameController,
+                width: MediaQuery.of(context).size.width * 0.4,
+                height: 40.h,
+              ),
+              SizedBox(height: 18.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        settingsTextField(
+                          ref: ref,
+                          labelText: "Email",
+                          controller: _emailController,
+                          height: 35.h,
+                          inputType: TextInputType.emailAddress,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 20.0),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        settingsTextField(
+                          ref: ref,
+                          labelText: "Phone",
+                          controller: _phoneController,
+                          height: 35.h,
+                          inputType: TextInputType.phone,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 18.h),
+              settingsTextField(
+                ref: ref,
+                labelText: "Address",
+                controller: _addressController,
+                height: 80.h,
+              ),
+              SizedBox(height: 18.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 40.h,
+                          width: 105.w,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(1.0),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: _selectedCategory,
+                            hint: const Text('Country'),
+                            icon: const Icon(IconsaxPlusBold.arrow_down),
+                            items: _categories.map((String item) {
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(item),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedCategory = newValue;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 40.h,
+                          width: 105.w,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(1.0),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: _selectedCategory,
+                            hint: const Text('State'),
+                            icon: const Icon(IconsaxPlusBold.arrow_down),
+                            items: _categories.map((String item) {
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(item),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedCategory = newValue;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          height: 40.h,
+                          width: 105.w,
+                          decoration: BoxDecoration(
+                            // color: Colors.white,
+                            borderRadius: BorderRadius.circular(1.0),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: _selectedCategory,
+                            hint: const Text('City'),
+                            icon: const Icon(IconsaxPlusBold.arrow_down),
+                            items: _categories.map((String item) {
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(item),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedCategory = newValue;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 29.h),
+              Container(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mainColor,
                     elevation: 0,
-                    padding: EdgeInsets.all(0),
-                    // // minimumSize: Size(width, height),
-                    // shape: BeveledRectangleBorder(
-                    //   borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    // ),
+                    fixedSize: Size(
+                      MediaQuery.of(context).size.width * 0.6,
+                      MediaQuery.of(context).size.height * 0.07,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15.r)),
+                    ),
                   ),
-                  child: CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.grey[300], // Placeholder for image
+                  child: Text('Update', style: AppTextStyles.buttonText),
+                ),
+              ),
+              SizedBox(height: 29.h),
+              const Text(
+                "Change Password",
+                style: TextStyle(
+                  fontSize: 21.0,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 11.h),
+              settingsPasswordField(
+                ref: ref,
+                labelText: "Current Password",
+                width: MediaQuery.of(context).size.width * 0.4,
+                height: 40.h,
+                controller: _currentPasswordController,
+                onChanged: (value) {},
+                passwordVisible: _passwordVisible,
+                changeVisibillity: () {
+                  setState(() {
+                    _passwordVisible = !_passwordVisible;
+                  });
+                },
+              ),
+              SizedBox(height: 18.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: settingsPasswordField(
+                      ref: ref,
+                      labelText: "New Password",
+                      height: 40.h,
+                      controller: _newPasswordController,
+                      onChanged: (value) {},
+                      passwordVisible: _newPasswordVisible,
+                      changeVisibillity: () {
+                        setState(() {
+                          _newPasswordVisible = !_newPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 20.0),
+                  Expanded(
+                    child: settingsPasswordField(
+                      ref: ref,
+                      labelText: "Confirm New Password",
+                      height: 40.h,
+                      controller: _confirmNewPasswordController,
+                      onChanged: (value) {},
+                      passwordVisible: _passwordConfirmVisible,
+                      changeVisibillity: () {
+                        setState(() {
+                          _passwordConfirmVisible = !_passwordConfirmVisible;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 13.h),
+              Container(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mainColor,
+                    elevation: 0,
+                    fixedSize: Size(
+                      MediaQuery.of(context).size.width * 0.6,
+                      MediaQuery.of(context).size.height * 0.07,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15.r)),
+                    ),
+                  ),
+                  child: Text(
+                    'Change',
+                    style: AppTextStyles.buttonText,
                   ),
                 ),
-                const SizedBox(height: 4.0),
-                Container(
-                  height: 35.0,
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  decoration: BoxDecoration(
-                    // color: Colors.white,
-                    borderRadius: BorderRadius.circular(1.0),
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: TextFormField(
-                    controller: _mealController,
-                    // selectionHeightStyle:
-                    // BoxHeightStyle.tight,
-                    style: const TextStyle(
-                      fontSize: 20.0,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Username',
-                      border: InputBorder.none,
-                    ),
-
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                SizedBox(height: ScreenUtil().setHeight(4)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 35.0,
-                            // width: MediaQuery.of(context).size.width * 0.5,
-                            decoration: BoxDecoration(
-                              // color: Colors.white,
-                              borderRadius: BorderRadius.circular(1.0),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: TextFormField(
-                              controller: _emailController,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10.0),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a full name';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 20.0),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 35.0,
-                            // width: MediaQuery.of(context).size.width * 0.5,
-                            decoration: BoxDecoration(
-                              // color: Colors.white,
-                              borderRadius: BorderRadius.circular(1.0),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: TextFormField(
-                              controller: _phoneController,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: const InputDecoration(
-                                labelText: 'Phone',
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10.0),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a full name';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: ScreenUtil().setHeight(4)),
-                Container(
-                  height: 80.0,
-                  decoration: BoxDecoration(
-                    // color: Colors.white,
-                    borderRadius: BorderRadius.circular(1.0),
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: TextFormField(
-                    controller: _descriptionController,
-                    style: const TextStyle(
-                      fontSize: 20.0,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Address',
-                      border: InputBorder.none,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                SizedBox(height: ScreenUtil().setHeight(4)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 35.0,
-                            // width: MediaQuery.of(context).size.width * 0.5,
-                            decoration: BoxDecoration(
-                              // color: Colors.white,
-                              borderRadius: BorderRadius.circular(1.0),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              value: _selectedCategory,
-                              hint: Text('Country'),
-                              icon: Icon(Icons.arrow_downward),
-                              items: _categories.map((String item) {
-                                return DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedCategory = newValue;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 13.0),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 35.0,
-                            // width: MediaQuery.of(context).size.width * 0.5,
-                            decoration: BoxDecoration(
-                              // color: Colors.white,
-                              borderRadius: BorderRadius.circular(1.0),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              value: _selectedCategory,
-                              hint: Text('State'),
-                              icon: Icon(Icons.arrow_downward),
-                              items: _categories.map((String item) {
-                                return DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedCategory = newValue;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 13),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 35.0,
-                            // width: MediaQuery.of(context).size.width * 0.5,
-                            decoration: BoxDecoration(
-                              // color: Colors.white,
-                              borderRadius: BorderRadius.circular(1.0),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-                              value: _selectedCategory,
-                              hint: Text('City'),
-                              icon: Icon(Icons.arrow_downward),
-                              items: _categories.map((String item) {
-                                return DropdownMenuItem<String>(
-                                  value: item,
-                                  child: Text(item),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedCategory = newValue;
-                                });
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: ScreenUtil().setHeight(5)),
-                Container(
-                  alignment: Alignment.center,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SellerDashboard(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.mainColor,
-                      textStyle: TextStyle(color: Colors.white),
-                      elevation: 0,
-                      // minimumSize: Size(width, height),
-                      fixedSize: Size(
-                        MediaQuery.of(context).size.width * 0.6,
-                        MediaQuery.of(context).size.height * 0.07,
-                      ),
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      ),
-                    ),
-                    child: Text(
-                      'Update',
-                      style: TextStyle(
-                          fontSize: ScreenUtil().setSp(7),
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                  ),
-                ),
-                SizedBox(height: ScreenUtil().setHeight(5)),
-                const Text(
-                  "Change Password",
-                  style: TextStyle(
-                    fontSize: 21.0,
-                    fontFamily: "Poppins",
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 5.0),
-                Container(
-                  height: 35.0,
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  decoration: BoxDecoration(
-                    // color: Colors.white,
-                    borderRadius: BorderRadius.circular(1.0),
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: TextFormField(
-                    controller: _mealController,
-                    // selectionHeightStyle:
-                    // BoxHeightStyle.tight,
-                    style: const TextStyle(
-                      fontSize: 20.0,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Current Password',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
-                    ),
-
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                SizedBox(height: ScreenUtil().setHeight(4)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 35.0,
-                            // width: MediaQuery.of(context).size.width * 0.5,
-                            decoration: BoxDecoration(
-                              // color: Colors.white,
-                              borderRadius: BorderRadius.circular(1.0),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: TextFormField(
-                              controller: _emailController,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: const InputDecoration(
-                                labelText: 'New Password',
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10.0),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a full name';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 20.0),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            height: 35.0,
-                            // width: MediaQuery.of(context).size.width * 0.5,
-                            decoration: BoxDecoration(
-                              // color: Colors.white,
-                              borderRadius: BorderRadius.circular(1.0),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: TextFormField(
-                              controller: _phoneController,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: const InputDecoration(
-                                labelText: 'Confirm Password',
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10.0),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a full name';
-                                }
-                                return null;
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: ScreenUtil().setHeight(5)),
-                Container(
-                  alignment: Alignment.center,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SellerDashboard(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.mainColor,
-                      textStyle: TextStyle(color: Colors.white),
-                      elevation: 0,
-                      // minimumSize: Size(width, height),
-                      fixedSize: Size(
-                        MediaQuery.of(context).size.width * 0.6,
-                        MediaQuery.of(context).size.height * 0.07,
-                      ),
-                      shape: BeveledRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      ),
-                    ),
-                    child: Text(
-                      'Change',
-                      style: TextStyle(
-                          fontSize: ScreenUtil().setSp(7),
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                  ),
-                ),
-                SizedBox(height: ScreenUtil().setHeight(5)),
-              ],
-            ),
+              ),
+              SizedBox(height: ScreenUtil().setHeight(5)),
+            ],
           ),
         ),
       ),

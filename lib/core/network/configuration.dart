@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 export 'package:dio/dio.dart';
 
-const String baseUrl = "https://cc3e-102-89-85-204.ngrok-free.app/api";
+const String baseUrl = "https://90df-105-115-2-57.ngrok-free.app/api";
 
 final Dio dio = Dio(
   BaseOptions(

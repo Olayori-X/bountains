@@ -100,11 +100,12 @@ Widget buildPasswordField({
             decoration: InputDecoration(
               border: InputBorder.none,
               suffixIcon: IconButton(
-                  icon: Icon(
-                    passwordVisible ? Icons.visibility : Icons.visibility_off,
-                    color: Colors.grey,
-                  ),
-                  onPressed: changeVisibillity),
+                icon: Icon(
+                  passwordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.grey,
+                ),
+                onPressed: changeVisibillity,
+              ),
             ),
             onChanged: onChanged,
             obscureText: passwordVisible,

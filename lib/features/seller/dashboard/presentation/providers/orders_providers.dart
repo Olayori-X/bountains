@@ -5,7 +5,7 @@ import 'dart:math';
 final StateProvider<List<Order>> ordersProvider =
     StateProvider((ref) => orders);
 
-List<Order> orders = List.generate(10, (index) {
+List<Order> orders = List.generate(20, (index) {
   return Order(
     sellerid: 'seller_$index',
     customerid: 'customer_$index',

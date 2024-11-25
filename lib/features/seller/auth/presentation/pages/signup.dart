@@ -143,144 +143,147 @@ class _StepOnePageState extends ConsumerState<_StepOnePage> {
     return SafeArea(
       child: Align(
         alignment: Alignment.bottomCenter,
-        heightFactor: 557.h,
-        child: SingleChildScrollView(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFFFFF),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(35.0),
-                topRight: Radius.circular(35.0),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: SingleChildScrollView(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFFFFFFFF),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(35.0),
+                  topRight: Radius.circular(35.0),
+                ),
               ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: ScreenUtil().setWidth(10.0),
-                vertical: ScreenUtil().setHeight(10),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Text(
-                    "Sign Up",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 23.0,
-                      fontFamily: "poppins",
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: ScreenUtil().setWidth(10.0),
+                  vertical: ScreenUtil().setHeight(10),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Text(
+                      "Sign Up",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 23.0,
+                        fontFamily: "Poppins",
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10.0),
-                  Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildTextField(
-                          label: "Full Name",
-                          controller: usernameController,
-                          onChanged: (value) {
-                            ref.read(usernameProvider.notifier).state = value;
-                          },
-                        ),
-                        buildTextField(
-                          label: "Email",
-                          controller: emailController,
-                          onChanged: (value) {
-                            ref.read(emailProvider.notifier).state = value;
-                          },
-                        ),
-                        buildTextField(
-                          label: "Phone",
-                          controller: phoneController,
-                          onChanged: (value) {
-                            ref.read(phoneProvider.notifier).state = value;
-                          },
-                        ),
-                        buildPasswordField(
-                          label: "Password",
-                          controller: passwordController,
-                          onChanged: (value) {
-                            ref.read(passwordProvider.notifier).state = value;
-                          },
-                          passwordVisible: _passwordVisible,
-                          changeVisibillity: () {
-                            setState(() {
-                              _passwordVisible = !_passwordVisible;
-                            });
-                          },
-                        ),
-                        SizedBox(height: 27.h),
-                        buildPasswordField(
-                          label: "Confirm Password",
-                          controller: passwordConfirmController,
-                          onChanged: (value) {
-                            ref.read(passwordConfirmProvider.notifier).state =
-                                value;
-                          },
-                          passwordVisible: _passwordConfirmVisible,
-                          changeVisibillity: () {
-                            setState(() {
-                              _passwordConfirmVisible =
-                                  !_passwordConfirmVisible;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 32.0),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (!validateSignupForm()) return;
-                            ref.read(signupProgressProvider.notifier).state =
-                                1.0;
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.mainColor,
-                            textStyle: TextStyle(
-                              color: AppColors.firstWhite,
-                            ),
-                            minimumSize: const Size(double.infinity, 60.0),
-                            shape: const BeveledRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(5.0),
-                              ),
-                            ),
+                    const SizedBox(height: 10.0),
+                    Form(
+                      key: formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          buildTextField(
+                            label: "Full Name",
+                            controller: usernameController,
+                            onChanged: (value) {
+                              ref.read(usernameProvider.notifier).state = value;
+                            },
                           ),
-                          child: Text(
-                            "Continue",
-                            style: AppTextStyles.buttonText.copyWith(
-                              color: AppColors.firstWhite,
-                            ),
+                          buildTextField(
+                            label: "Email",
+                            controller: emailController,
+                            onChanged: (value) {
+                              ref.read(emailProvider.notifier).state = value;
+                            },
                           ),
-                        ),
-                        const SizedBox(height: 20.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Have an account already?",
-                              style: AppTextStyles.body1SemiBold.copyWith(
-                                color: Colors.black,
+                          buildTextField(
+                            label: "Phone",
+                            controller: phoneController,
+                            onChanged: (value) {
+                              ref.read(phoneProvider.notifier).state = value;
+                            },
+                          ),
+                          buildPasswordField(
+                            label: "Password",
+                            controller: passwordController,
+                            onChanged: (value) {
+                              ref.read(passwordProvider.notifier).state = value;
+                            },
+                            passwordVisible: _passwordVisible,
+                            changeVisibillity: () {
+                              setState(() {
+                                _passwordVisible = !_passwordVisible;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 27.h),
+                          buildPasswordField(
+                            label: "Confirm Password",
+                            controller: passwordConfirmController,
+                            onChanged: (value) {
+                              ref.read(passwordConfirmProvider.notifier).state =
+                                  value;
+                            },
+                            passwordVisible: _passwordConfirmVisible,
+                            changeVisibillity: () {
+                              setState(() {
+                                _passwordConfirmVisible =
+                                    !_passwordConfirmVisible;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 32.0),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (!validateSignupForm()) return;
+                              ref.read(signupProgressProvider.notifier).state =
+                                  1.0;
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.mainColor,
+                              textStyle: TextStyle(
+                                color: AppColors.firstWhite,
                               ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                context.router
-                                    .pushReplacementNamed(Pages.sellerlogin);
-                              },
-                              child: Text(
-                                "Log in",
-                                style: AppTextStyles.body1SemiBold.copyWith(
-                                  color: AppColors.mainColor,
+                              minimumSize: const Size(double.infinity, 60.0),
+                              shape: const BeveledRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(5.0),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-                ],
+                            child: Text(
+                              "Continue",
+                              style: AppTextStyles.buttonText.copyWith(
+                                color: AppColors.firstWhite,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20.0),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Have an account already?",
+                                style: AppTextStyles.body1SemiBold.copyWith(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  context.router
+                                      .pushReplacementNamed(Pages.sellerlogin);
+                                },
+                                child: Text(
+                                  "Log in",
+                                  style: AppTextStyles.body1SemiBold.copyWith(
+                                    color: AppColors.mainColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),

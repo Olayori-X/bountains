@@ -27,7 +27,7 @@ class _SellerDashboardState extends ConsumerState<SellerDashboard> {
     children = const [
       Home(),
       Orders(),
-      Meal(),
+      MealPage(),
       Settings(),
     ];
   }

@@ -9,9 +9,11 @@ PreferredSizeWidget dashboardAppBar(
     title: Text(
       'Hi, $name',
       style: AppTextStyles.title1Medium.copyWith(
-        color: AppColors.firstBlack,
+        color: Colors.black,
       ),
     ),
+    leading: null,
+    automaticallyImplyLeading: false,
     actions: [
       ElevatedButton(
         onPressed: () {

@@ -19,7 +19,7 @@ class OrdersList extends ConsumerWidget {
           data: order,
           index: index,
           backgroundColor:
-              index.isEven ? const Color(0xFFD9D9D9) : AppColors.mainColor,
+              index.isEven ? const Color(0xFFD79384) : AppColors.mainColor,
         );
       },
     );
@@ -39,35 +39,35 @@ class OrderItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
-      color: const Color(0xFFBEA6A0),
-      height: 52.h,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '${index + 1}',
-            style: AppTextStyles.h2Bold.copyWith(
-              color: AppColors.firstWhite,
-              fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        color: backgroundColor,
+        height: 50.h,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${index + 1}',
+              style: AppTextStyles.title1Bold.copyWith(
+                color: AppColors.firstWhite,
+              ),
             ),
-          ),
-          Text(
-            data.meal,
-            style: AppTextStyles.h2Bold.copyWith(
-              color: AppColors.firstWhite,
-              fontWeight: FontWeight.w500,
+            Text(
+              data.meal,
+              style: AppTextStyles.title1Bold.copyWith(
+                color: AppColors.firstWhite,
+              ),
             ),
-          ),
-          Text(
-            data.status,
-            style: AppTextStyles.h2Bold.copyWith(
-              color: AppColors.firstWhite,
-              fontWeight: FontWeight.w500,
+            Text(
+              data.status,
+              style: AppTextStyles.title1Bold.copyWith(
+                color: AppColors.firstWhite,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

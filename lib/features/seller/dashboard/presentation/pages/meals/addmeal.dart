@@ -1,28 +1,22 @@
 import 'package:bountains/core/ui/ui.dart';
-import 'package:bountains/features/seller/dashboard/presentation/pages/dashboard.dart';
-import 'package:bountains/features/seller/dashboard/presentation/pages/meals/meals.dart';
-import 'package:bountains/features/seller/dashboard/presentation/pages/orders.dart';
-import 'package:bountains/features/seller/dashboard/presentation/pages/settings.dart';
+import 'package:bountains/features/seller/dashboard/presentation/providers/add_meal_provider.dart';
+import 'package:bountains/features/seller/dashboard/presentation/providers/meals_providers.dart';
+import 'package:bountains/features/seller/profile/presentation/widgets/complete_profile_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AddMeal extends StatefulWidget {
+class AddMeal extends ConsumerStatefulWidget {
   const AddMeal({super.key});
 
   @override
-  State<AddMeal> createState() => _AddMealState();
+  ConsumerState<AddMeal> createState() => _AddMealState();
 }
 
-class _AddMealState extends State<AddMeal> {
-  final List<String> _categories = [
-    'All',
-    'Pending',
-    'Completed'
-  ]; //TODO this will change
+class _AddMealState extends ConsumerState<AddMeal> {
+  String? _selectedCategory;
 
-  // Default value for dropdown
-  String? _selectedCategory; //TODO this will chamge too
+  String? _selectedUnit;
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _mealController = TextEditingController();
@@ -31,84 +25,21 @@ class _AddMealState extends State<AddMeal> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(
-      context,
-      designSize: Size(100, 200), // Design size (your UI design resolution)
-      // allowFontScaling: false, // Disable font scaling
-    );
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Text(
-            'Add Meal',
-            style: TextStyle(
+        backgroundColor: Colors.white,
+        title: Text(
+          'Add Meal',
+          style: AppTextStyles.title1Medium.copyWith(
               fontFamily: 'Poppins',
-              fontWeight: FontWeight.bold,
-              fontSize: ScreenUtil().setSp(5),
-              color: Colors.black, // Set your preferred text color here
-            ),
-          )),
-      bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SellerDashboard()),
-              );
-            },
-            icon: Icon(
-              Icons.home_rounded,
-              size: 45,
-            ),
-            color: AppColors.mainColor,
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Orders()),
-              );
-            },
-            icon: Icon(
-              Icons.notes, //TODO to change later
-              size: 45,
-            ),
-            color: AppColors.mainColor,
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Meal()),
-              );
-            },
-            icon: Icon(
-              Icons.cookie, //TODO to change later
-              size: 45,
-            ),
-            color: AppColors.mainColor,
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Settings()),
-              );
-            },
-            icon: Icon(
-              Icons.settings_accessibility, //TODO to change later
-              size: 45,
-            ),
-            color: AppColors.mainColor,
-          ),
-        ],
+              color: Colors.black,
+              fontWeight: FontWeight.w600),
+        ),
       ),
       body: Container(
         padding: EdgeInsets.symmetric(
-          vertical: ScreenUtil().setHeight(6),
-          horizontal: ScreenUtil().setWidth(4),
+          vertical: 37.h,
+          horizontal: 28.w,
         ),
         child: SingleChildScrollView(
           child: Form(
@@ -116,104 +47,37 @@ class _AddMealState extends State<AddMeal> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  "Meal",
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: "Poppins",
+                completeProfileTextField(
+                  label: "Meal",
+                  controller: _mealController,
+                  onChanged: (value) {
+                    ref.watch(mealProvider.notifier).state = value;
+                  },
+                  height: 57.h,
+                ),
+                SizedBox(height: 35.h),
+                completeProfileTextField(
+                  label: "Description",
+                  controller: _descriptionController,
+                  onChanged: (value) {
+                    ref.watch(descriptionProvider.notifier).state = value;
+                  },
+                  height: 124.h,
+                ),
+                SizedBox(height: 35.h),
+                Text(
+                  "Category",
+                  style: AppTextStyles.title1Medium.copyWith(
+                    fontFamily: 'Poppins',
+                    color: Colors.black,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 5.0),
+                SizedBox(height: 11.h),
                 Container(
-                  height: 45.0,
+                  height: 57.h,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 5,
-                        offset: Offset(4, 10),
-                      ),
-                    ],
-                    // border: BoxBo
-                  ),
-                  child: TextFormField(
-                    controller: _mealController,
-                    // selectionHeightStyle:
-                    // BoxHeightStyle.tight,
-                    style: const TextStyle(
-                        fontSize: 20.0,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w600),
-                    decoration: const InputDecoration(
-                        // labelText: 'Username',
-                        border: InputBorder.none),
-
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                SizedBox(height: ScreenUtil().setHeight(5)),
-                const Text(
-                  "Description",
-                  style: TextStyle(
-                      fontSize: 18.0,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 5.0),
-                Container(
-                  height: 115.0,
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Background color for the container
-                    borderRadius: BorderRadius.circular(10.0),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 5,
-                        offset: Offset(4, 10),
-                      ),
-                    ],
-                    // border: BoxBo
-                  ),
-                  child: TextFormField(
-                    controller: _descriptionController,
-                    style: const TextStyle(
-                      fontSize: 20.0,
-                      fontFamily: "Poppins",
-                      fontWeight: FontWeight.w600,
-                    ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                SizedBox(height: ScreenUtil().setHeight(5)),
-                const Text(
-                  "Category",
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: "Poppins",
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 5.0),
-                Container(
-                  height: 55.0,
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Background color for the container
                     borderRadius: BorderRadius.circular(10.0),
                     boxShadow: const [
                       BoxShadow(
@@ -222,27 +86,25 @@ class _AddMealState extends State<AddMeal> {
                         offset: Offset(6, 12),
                       ),
                     ],
-                    // border: BoxBo
                   ),
                   child: DropdownButton<String>(
                     isExpanded: true,
                     value: _selectedCategory,
-                    hint: Text('Select an option'),
-                    icon: Icon(Icons.arrow_downward),
-                    items: _categories.map((String item) {
+                    hint: const Text('Select an option'),
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    items: categories.map((String item) {
                       return DropdownMenuItem<String>(
                         value: item,
                         child: Text(item),
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedCategory = newValue;
-                      });
+                      ref.watch(selectedCategoryProvider.notifier).state =
+                          newValue;
                     },
                   ),
                 ),
-                SizedBox(height: ScreenUtil().setHeight(5)),
+                SizedBox(height: 35.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -250,47 +112,13 @@ class _AddMealState extends State<AddMeal> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Price",
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          Container(
-                            height: 45.0,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10.0),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 5,
-                                  offset: Offset(4, 10),
-                                ),
-                              ],
-                            ),
-                            child: TextFormField(
-                              controller: _priceController,
-                              style: const TextStyle(
-                                fontSize: 20.0,
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w600,
-                              ),
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 10.0),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a full name';
-                                }
-                                return null;
-                              },
-                            ),
+                          completeProfileTextField(
+                            label: "Price",
+                            controller: _priceController,
+                            onChanged: (value) {
+                              ref.watch(priceProvider.notifier).state = value;
+                            },
+                            height: 57.h,
                           ),
                         ],
                       ),
@@ -300,20 +128,19 @@ class _AddMealState extends State<AddMeal> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             "Quantity Unit",
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontFamily: "Poppins",
+                            style: AppTextStyles.title1Medium.copyWith(
+                              fontFamily: 'Poppins',
+                              color: Colors.black,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 5.0),
+                          SizedBox(height: 11.h),
                           Container(
-                            height: 55.0,
+                            height: 57.h,
                             decoration: BoxDecoration(
-                              color: Colors
-                                  .white, // Background color for the container
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(10.0),
                               boxShadow: const [
                                 BoxShadow(
@@ -326,19 +153,18 @@ class _AddMealState extends State<AddMeal> {
                             ),
                             child: DropdownButton<String>(
                               isExpanded: true,
-                              value: _selectedCategory,
-                              hint: Text('Select an option'),
-                              icon: Icon(Icons.arrow_downward),
-                              items: _categories.map((String item) {
+                              value: _selectedUnit,
+                              hint: const Text('Select an option'),
+                              icon: const Icon(Icons.keyboard_arrow_down),
+                              items: quantityUnits.map((String item) {
                                 return DropdownMenuItem<String>(
                                   value: item,
                                   child: Text(item),
                                 );
                               }).toList(),
                               onChanged: (String? newValue) {
-                                setState(() {
-                                  _selectedCategory = newValue;
-                                });
+                                ref.watch(quantityUntProvider.notifier).state =
+                                    newValue;
                               },
                             ),
                           ),
@@ -347,7 +173,7 @@ class _AddMealState extends State<AddMeal> {
                     ),
                   ],
                 ),
-                SizedBox(height: ScreenUtil().setHeight(5)),
+                SizedBox(height: 35.h),
                 const Text(
                   "Upload Meal Image",
                   style: TextStyle(
@@ -361,18 +187,8 @@ class _AddMealState extends State<AddMeal> {
                   decoration: BoxDecoration(
                       color: Colors.white, // Background color for the container
                       borderRadius: BorderRadius.circular(10.0),
-                      // boxShadow: const [
-                      //   BoxShadow(
-                      //     color: Colors.black12,
-                      //     blurRadius: 5,
-                      //     offset: Offset(4, 10),
-                      //   ),
-                      // ],
                       border: Border.all(color: Colors.black87)),
                   child: TextFormField(
-                    // controller: _usernameController,
-                    // selectionHeightStyle:
-                    // BoxHeightStyle.tight,
                     style: const TextStyle(
                         fontSize: 20.0,
                         fontFamily: "Poppins",
@@ -380,7 +196,6 @@ class _AddMealState extends State<AddMeal> {
                     decoration: const InputDecoration(
                         // labelText: 'Username',
                         border: InputBorder.none),
-
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a username';
@@ -389,35 +204,28 @@ class _AddMealState extends State<AddMeal> {
                     },
                   ),
                 ),
-                SizedBox(height: ScreenUtil().setHeight(7)),
+                SizedBox(height: 26.h),
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SellerDashboard(),
-                      ),
-                    );
-                  },
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.mainColor,
-                    textStyle: TextStyle(color: Colors.white),
-                    elevation: 0,
-                    // minimumSize: Size(width, height),
-                    fixedSize: Size(
-                      MediaQuery.of(context).size.width * 0.9,
-                      MediaQuery.of(context).size.height * 0.08,
+                    textStyle: AppTextStyles.buttonText.copyWith(
+                      color: const Color(0xFFF2F2F2),
                     ),
-                    shape: BeveledRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                    elevation: 0,
+                    minimumSize: Size(
+                      MediaQuery.of(context).size.width * 0.9,
+                      66.h,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15.r)),
                     ),
                   ),
                   child: Text(
                     'Add',
-                    style: TextStyle(
-                        fontSize: ScreenUtil().setSp(8),
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
+                    style: AppTextStyles.buttonText.copyWith(
+                      color: const Color(0xFFF2F2F2),
+                    ),
                   ),
                 ),
               ],

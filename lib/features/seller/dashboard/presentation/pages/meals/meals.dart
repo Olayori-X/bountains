@@ -1,648 +1,89 @@
 import 'package:bountains/core/ui/ui.dart';
+import 'package:bountains/features/seller/dashboard/domain/entities/meal.dart';
 import 'package:bountains/features/seller/dashboard/presentation/pages/meals/addmeal.dart';
+import 'package:bountains/features/seller/dashboard/presentation/providers/meals_providers.dart';
+import 'package:bountains/features/seller/dashboard/presentation/widgets/meal_list_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class Meal extends StatefulWidget {
-  const Meal({super.key});
+class MealPage extends ConsumerStatefulWidget {
+  const MealPage({super.key});
 
   @override
-  State<Meal> createState() => _MealState();
+  ConsumerState<MealPage> createState() => _MealPageState();
 }
 
-class _MealState extends State<Meal> {
+class _MealPageState extends ConsumerState<MealPage>
+    with SingleTickerProviderStateMixin {
+  late TabController controller;
+  String selectedCategory = 'All';
+  List<String> updatedcategories = [];
+
+  @override
+  void initState() {
+    super.initState();
+    updatedcategories = ['All', ...categories];
+
+    // Initialize TabController with the correct length
+    controller = TabController(length: updatedcategories.length, vsync: this);
+
+    // Listen to tab changes
+    controller.addListener(() {
+      setState(() {
+        selectedCategory = updatedcategories[controller.index];
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Meal> allMeals = ref.watch(mealsProvider);
+
+    // Filter meals based on the selected category
+    final List<Meal> filteredMeals = selectedCategory == 'All'
+        ? allMeals
+        : allMeals.where((meal) => meal.category == selectedCategory).toList();
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddMeal()),
+            MaterialPageRoute(builder: (context) => const AddMeal()),
           );
         },
         backgroundColor: AppColors.mainColor,
-        child: Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       body: SafeArea(
         child: Container(
           padding: EdgeInsets.symmetric(
-            vertical: ScreenUtil().setHeight(6),
-            horizontal: 15.w,
+            vertical: 6.h,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              TabBar(
+                controller: controller,
+                isScrollable: true,
+                indicatorColor: AppColors.mainColor,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicatorWeight: 5.h,
+                labelStyle: AppTextStyles.title1SemiBold,
+                labelColor: AppColors.primary2Normal2,
+                unselectedLabelStyle: AppTextStyles.title1,
+                unselectedLabelColor: AppColors.primary2Normal2,
+                tabs:
+                    updatedcategories.map((title) => Tab(text: title)).toList(),
+              ),
+              SizedBox(height: 24.h),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(
-                        height: ScreenUtil().setHeight(3),
-                      ),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'All',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: ScreenUtil().setSp(5),
-                                fontWeight: FontWeight.w200,
-                              ),
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(6)),
-                            Text(
-                              'Drink',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: ScreenUtil().setSp(5),
-                                fontWeight: FontWeight.w200,
-                              ),
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(6)),
-                            Text(
-                              'Swallows',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: ScreenUtil().setSp(5),
-                                fontWeight: FontWeight.w200,
-                              ),
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(6)),
-                            Text(
-                              'Soup',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: ScreenUtil().setSp(5),
-                                fontWeight: FontWeight.w200,
-                              ),
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(6)),
-                            Text(
-                              'Combo',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: ScreenUtil().setSp(5),
-                                fontWeight: FontWeight.w200,
-                              ),
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(6)),
-                            Text(
-                              'Combo',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: ScreenUtil().setSp(5),
-                                fontWeight: FontWeight.w200,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(5)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              // Use Expanded or Flexible to allow alignment to work
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // Align text to the left
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              // Use Expanded or Flexible to allow alignment to work
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // Align text to the left
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              // Use Expanded or Flexible to allow alignment to work
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // Align text to the left
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              // Use Expanded or Flexible to allow alignment to work
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // Align text to the left
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              // Use Expanded or Flexible to allow alignment to work
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              // Use Expanded or Flexible to allow alignment to work
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // Align text to the left
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              // Use Expanded or Flexible to allow alignment to work
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // Align text to the left
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: ScreenUtil().setHeight(2)),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        height: ScreenUtil().setHeight(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white70,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.25),
-                              // spreadRadius: 2, // Spread of the shadow
-                              blurRadius: 10,
-                              offset: Offset(5, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Colors.grey[300], // Placeholder for image
-                            ),
-                            SizedBox(width: ScreenUtil().setWidth(3)),
-                            Expanded(
-                              // Use Expanded or Flexible to allow alignment to work
-                              child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .start, // Align text to the left
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      'Spaghetti and Turkey',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    SizedBox(height: ScreenUtil().setHeight(1)),
-                                    Text(
-                                      'Plate',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Text(
-                              '₦4,500',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                child: MealList(meals: filteredMeals),
               ),
             ],
           ),

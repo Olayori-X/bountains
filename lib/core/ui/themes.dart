@@ -33,6 +33,7 @@ class AppTextStyles {
         fontSize: 35.sp,
         fontFamily: "Poppins",
         fontWeight: FontWeight.bold,
+        color: const Color(0xFFF2F2F2),
       );
 
   static TextStyle get littlebuttonText => TextStyle(
