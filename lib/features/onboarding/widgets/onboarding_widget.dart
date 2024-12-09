@@ -1,4 +1,5 @@
 import 'package:bountains/core/ui/ui.dart';
+import 'package:bountains/core/widgets/loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -21,8 +22,9 @@ class OnboardingData {
 
 class OnboardingWidget extends StatelessWidget {
   final OnboardingData data;
-
-  const OnboardingWidget({super.key, required this.data});
+  final bool loading;
+  const OnboardingWidget(
+      {super.key, required this.data, required this.loading});
 
   @override
   Widget build(BuildContext context) {
@@ -60,15 +62,17 @@ class OnboardingWidget extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(25.r)),
                       ),
                     ),
-                    child: Text(
-                      data.firstbuttontext,
-                      style: TextStyle(
-                        fontSize: 25.0,
-                        color: AppColors.firstWhite,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: loading
+                        ? whiteLoader
+                        : Text(
+                            data.firstbuttontext,
+                            style: TextStyle(
+                              fontSize: 25.0,
+                              color: AppColors.firstWhite,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                   SizedBox(height: 16.0),
                   TextButton(

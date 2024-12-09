@@ -7,6 +7,10 @@ class CompleteVendorProfilePayload {
   final String accountnumber;
   final String picture;
   final String vendorname;
+  final String address;
+  final String city;
+  final String street;
+  final String state;
 
   const CompleteVendorProfilePayload({
     required this.sellerid,
@@ -17,6 +21,10 @@ class CompleteVendorProfilePayload {
     required this.accountnumber,
     required this.picture,
     required this.vendorname,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.street,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +37,10 @@ class CompleteVendorProfilePayload {
       "accountnumber": accountnumber,
       "picture": picture,
       "vendorname": vendorname,
+      "address": address,
+      "city": city,
+      "state": state,
+      "street": street,
     };
   }
 
@@ -42,6 +54,10 @@ class CompleteVendorProfilePayload {
       accountnumber: map["accountnumber"],
       picture: map["picture"],
       vendorname: map['vendorname'],
+      address: map['address'],
+      state: map['state'],
+      city: map['city'],
+      street: map['street'],
     );
   }
 }

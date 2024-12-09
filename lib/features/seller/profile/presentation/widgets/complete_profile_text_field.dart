@@ -7,6 +7,7 @@ Widget completeProfileTextField({
   TextInputType inputType = TextInputType.text,
   String? hintText,
   double? height,
+  int? maxLines,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,6 +38,7 @@ Widget completeProfileTextField({
           ),
           child: TextFormField(
             controller: controller,
+            maxLines: maxLines,
             // selectionHeightStyle: BoxHeightStyle.tight,
             style: const TextStyle(
               fontSize: 20.0,

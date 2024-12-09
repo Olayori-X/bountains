@@ -1,10 +1,17 @@
 import 'package:bountains/core/extensions/build_context.dart';
 import 'package:bountains/core/file/file_handler.dart';
 import 'package:bountains/core/navigation/pages.dart';
+import 'package:bountains/core/network/token.dart';
+import 'package:bountains/core/provider/global.dart';
 import 'package:bountains/core/ui/ui.dart';
+import 'package:bountains/features/onboarding/functions/background_log_in.dart';
+import 'package:bountains/features/onboarding/functions/background_login_sellers.dart';
+import 'package:bountains/features/utility/functions/get_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
+import 'package:is_first_run/is_first_run.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({Key? key});
@@ -21,7 +28,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void initState() {
     super.initState();
-
     controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
@@ -34,12 +40,47 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       ),
     );
 
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(Duration(milliseconds: 1000), () {
       controller.forward().then((_) async {
-        String? authDetails = await FileHandler.loadAuthEmail();
+        String destination;
+
+        bool firstRun = await IsFirstRun.isFirstRun();
+        if (!firstRun) {
+          Map<String, String?>? authDetails =
+              await FileHandler.loadAuthDetailsDashboard();
+
+          if (authDetails?['accessToken'] != null &&
+              authDetails?['accessToken'] != 'authenticationAccessTokenKey') {
+            GetIt.I<AppTokens>().accessToken =
+                authDetails!['accessToken'] ?? "";
+
+            GetIt.I<UserCredentials>().sellerid = authDetails['userid'] ?? "";
+            if (authDetails['role'] == "vendor") {
+              await getCurrentLocation();
+              await getDashboardData(ref);
+              ref.watch(accountTypeProvider.notifier).state =
+                  sellersuccess ? 'Vendor' : "";
+              print(sellersuccess);
+              destination =
+                  sellersuccess ? Pages.sellerDashboard : Pages.sellerlogin;
+            } else {
+              await getCurrentLocation();
+              await getMealsForShopData(ref);
+              ref.watch(accountTypeProvider.notifier).state =
+                  isSuccess ? 'Buyer' : "";
+              destination =
+                  isSuccess ? Pages.buyerDashboard : Pages.sellerlogin;
+            }
+          } else {
+            authDetails = await FileHandler.loadAuthDetails();
+            if (authDetails!['email'] != null) {}
+            destination = Pages.sellerlogin;
+          }
+        } else {
+          destination = Pages.onboarding;
+        }
         context.router.pushReplacementNamed(
-          authDetails != null ? Pages.sellerlogin : Pages.onboarding,
-          extra: authDetails,
+          destination,
         );
       });
     });

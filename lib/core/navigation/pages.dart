@@ -15,5 +15,11 @@ class Pages {
   static String get createStudentProfile => "create-student-profile";
 
   static String get sellerDashboard => "seller-dashboard";
-  static String get buyererDashboard => "buyer-dashboard";
+
+  static String get buyerlogin => "buyerlogin";
+  static String get buyersignup => "buyersignup";
+  static String get buyerVerification => "buyer-verification";
+
+  static String get buyerDashboard => "buyer-dashboard";
+  static String get viewCatalogue => "view-catalogue";
 }

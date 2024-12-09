@@ -1,44 +1,64 @@
 class Meal {
-  final String sellerid;
   final String mealid;
+  final String sellerid;
   final String meal;
   final String category;
   final String quantityunit;
-  final double price;
+  final String price;
   final String description;
   final String? picture;
+  final String? newprice;
 
   const Meal({
-    required this.sellerid,
     required this.mealid,
+    required this.sellerid,
     required this.meal,
     required this.category,
     required this.quantityunit,
     required this.price,
     required this.description,
-    required this.picture,
+    this.picture,
+    this.newprice,
   });
+
+  Meal copyWith({
+    String? newprice,
+  }) {
+    return Meal(
+      mealid: mealid,
+      sellerid: sellerid,
+      meal: meal,
+      newprice: newprice ?? price,
+      price: price,
+      quantityunit: quantityunit,
+      category: category,
+      description: description,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "mealid": mealid,
+      "meal": meal,
+      "category": category,
+      "quantityunit": quantityunit,
+      "price": price,
+      "description": description,
+      "picture": picture,
+      "sellerid": sellerid,
+    };
+  }
 
   factory Meal.fromJson(Map<String, dynamic> map) {
     return Meal(
-      sellerid: map['sellerid']!,
-      mealid: map['customerid']!,
-      meal: map['meal']!,
-      category: map['category']!,
-      quantityunit: map['quantityunit']!,
-      price: map['price']!,
-      description: map['description']!,
+      mealid: map['mealid'] ?? "",
+      meal: map['meal'] ?? "",
+      category: map['category'] ?? "",
+      quantityunit: map['quantity_unit'] ?? "",
+      price: map['price'] ?? "",
+      description: map['description'] ?? "",
       picture: map['picture'],
+      sellerid: map['sellerid'],
     );
   }
-}
-
-class MealData {
-  final List<Meal> meal;
-  final List<String> categories;
-
-  const MealData({
-    required this.meal,
-    required this.categories,
-  });
 }

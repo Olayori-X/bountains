@@ -1,5 +1,5 @@
-import 'package:bountains/features/seller/auth/presentation/pages/verifyotp.dart';
-import 'package:bountains/features/seller/auth/presentation/pages/login.dart';
+import 'package:bountains/features/general/presentation/pages/verifyotp.dart';
+import 'package:bountains/features/general/presentation/pages/login.dart';
 import 'package:bountains/features/seller/auth/presentation/pages/signup.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bountains/core/extensions/string.dart';

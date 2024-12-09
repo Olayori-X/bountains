@@ -139,4 +139,10 @@ class AppTextStyles {
         height: (30 / 20),
         fontWeight: FontWeight.w700,
       );
+
+  static TextStyle get calculationText => TextStyle(
+        fontSize: 24.sp,
+        height: (29.05 / 24),
+        fontWeight: FontWeight.w500,
+      );
 }

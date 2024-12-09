@@ -1,5 +1,5 @@
 import 'package:bountains/core/error/error.dart';
-import 'package:bountains/features/seller/auth/domain/entities/user_credentials.dart';
+import 'package:bountains/features/general/domain/entities/user_credentials.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:bountains/core/usecase/usecase.dart';
 import 'package:bountains/features/seller/auth/domain/repositories/manual_register_repository.dart';
@@ -26,18 +26,10 @@ class ManualRegisterParams {
   final String phone;
   final String password;
   final String passwordConfirmation;
-  final String address;
-  final String street;
-  final String city;
-  final String state;
 
   const ManualRegisterParams({
     required this.fullname,
     required this.passwordConfirmation,
-    required this.address,
-    required this.city,
-    required this.street,
-    required this.state,
     required this.email,
     required this.phone,
     required this.password,
@@ -49,10 +41,6 @@ class ManualRegisterParams {
       "phone": phone,
       "password": password,
       'fullname': fullname,
-      'address': address,
-      'street': street,
-      'city': city,
-      "state": state,
       "passwordConfirmation": passwordConfirmation
     };
   }

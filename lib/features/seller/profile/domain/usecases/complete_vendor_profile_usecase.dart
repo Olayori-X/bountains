@@ -27,6 +27,10 @@ class CompleteVendorProfileParams {
   final String accountnumber;
   final String? picture;
   final String vendorname;
+  final String address;
+  final String street;
+  final String city;
+  final String state;
 
   const CompleteVendorProfileParams({
     required this.sellerid,
@@ -37,6 +41,10 @@ class CompleteVendorProfileParams {
     required this.accountnumber,
     required this.picture,
     required this.vendorname,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.street,
   });
 
   Map<String, dynamic> toJson() {
@@ -49,6 +57,10 @@ class CompleteVendorProfileParams {
       "accountnumber": accountnumber,
       "picture": picture,
       "vendorname": vendorname,
+      "address": address,
+      "street": street,
+      "city": city,
+      "state": state,
     };
   }
 }

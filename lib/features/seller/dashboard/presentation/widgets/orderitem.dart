@@ -1,17 +1,19 @@
 import 'package:bountains/core/ui/ui.dart';
 import 'package:bountains/features/seller/dashboard/domain/entities/order.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OrdersList extends ConsumerWidget {
-  final List<Order> orders;
+  final List<SellerOrders> orders;
   const OrdersList({super.key, required this.orders});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView.separated(
       itemCount: orders.length,
+      physics: const AlwaysScrollableScrollPhysics(),
       separatorBuilder: (context, index) => SizedBox(height: 2.h),
       itemBuilder: (context, index) {
         final order = orders[index];
@@ -27,7 +29,7 @@ class OrdersList extends ConsumerWidget {
 }
 
 class OrderItem extends StatelessWidget {
-  final Order data;
+  final SellerOrders data;
   final int index;
   final Color backgroundColor;
 
@@ -61,7 +63,13 @@ class OrderItem extends StatelessWidget {
               ),
             ),
             Text(
-              data.status,
+              "${data.quantity} ${data.quantityunit}",
+              style: AppTextStyles.title1Bold.copyWith(
+                color: AppColors.firstWhite,
+              ),
+            ),
+            Text(
+              (data.status).capitalize,
               style: AppTextStyles.title1Bold.copyWith(
                 color: AppColors.firstWhite,
               ),

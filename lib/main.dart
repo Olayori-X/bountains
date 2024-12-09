@@ -1,3 +1,5 @@
+import 'package:bountains/features/buyer/auth/presentation/routes.dart';
+import 'package:bountains/features/buyer/dashboard/presentation/routes.dart';
 import 'package:bountains/features/onboarding/routes.dart';
 import 'package:bountains/features/seller/auth/presentation/routes.dart';
 import 'package:bountains/features/seller/dashboard/presentation/routes.dart';
@@ -109,7 +111,9 @@ class _BountainsState extends ConsumerState<Bountains> {
         ...onboardingRoutes,
         ...sellerAuthenticationRoutes,
         ...sellerDashboardRoutes,
-        ...sellerProfileRoutes
+        ...sellerProfileRoutes,
+        ...buyerAuthenticationRoutes,
+        ...buyerDashboardRoutes,
       ],
     );
   }

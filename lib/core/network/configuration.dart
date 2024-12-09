@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 export 'package:dio/dio.dart';
 
-const String baseUrl = "https://90df-105-115-2-57.ngrok-free.app/api";
+const String baseUrl = "https://mansapay.net.ng/bountains/public/api";
+
+const String baseLink = "https://mansapay.net.ng/bountains/";
 
 final Dio dio = Dio(
   BaseOptions(

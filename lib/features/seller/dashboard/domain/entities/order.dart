@@ -1,17 +1,19 @@
-class Order {
+class SellerOrders {
   final String sellerid;
+  final String mealid;
   final String customerid;
   final String orderid;
   final String meal;
-  final int quantity;
+  final String quantity;
   final String quantityunit;
-  final double price;
+  final String price;
   final String status;
-  final double latitude;
-  final double longitude;
+  final String latitude;
+  final String longitude;
 
-  const Order({
+  const SellerOrders({
     required this.sellerid,
+    required this.mealid,
     required this.customerid,
     required this.orderid,
     required this.meal,
@@ -23,9 +25,26 @@ class Order {
     required this.longitude,
   });
 
-  factory Order.fromJson(Map<String, dynamic> map) {
-    return Order(
+  Map<String, dynamic> toJson() {
+    return {
+      "mealid": mealid,
+      "meal": meal,
+      "customerid": customerid,
+      "orderid": orderid,
+      "quantity": quantity,
+      "quantityunit": quantityunit,
+      "price": price,
+      "status": status,
+      "sellerid": sellerid,
+      "latitude": latitude,
+      "longitude": longitude,
+    };
+  }
+
+  factory SellerOrders.fromJson(Map<String, dynamic> map) {
+    return SellerOrders(
       sellerid: map['sellerid']!,
+      mealid: map['mealid']!,
       customerid: map['customerid']!,
       orderid: map['orderid']!,
       meal: map['meal']!,

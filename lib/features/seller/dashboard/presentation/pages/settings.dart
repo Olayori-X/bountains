@@ -1,7 +1,13 @@
+import 'dart:convert';
+
+import 'package:bountains/core/extensions/build_context.dart';
+import 'package:bountains/core/navigation/pages.dart';
+import 'package:bountains/core/provider/states.dart';
 import 'package:bountains/core/ui/ui.dart';
-import 'package:bountains/features/seller/auth/domain/entities/user.dart';
-import 'package:bountains/features/seller/auth/presentation/provider/login_provider.dart';
-import 'package:bountains/features/seller/dashboard/presentation/pages/dashboard.dart';
+import 'package:bountains/features/general/domain/entities/user.dart';
+import 'package:bountains/features/general/presentation/functions/logout.dart';
+import 'package:bountains/features/general/presentation/providers/login_provider.dart';
+import 'package:bountains/features/seller/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:bountains/features/seller/dashboard/presentation/widgets/change_user_details_text_field.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -21,14 +27,16 @@ class _SettingsState extends ConsumerState<Settings> {
   bool _newPasswordVisible = true;
   bool _passwordConfirmVisible = true;
 
-  final List<String> _categories = [
-    'All',
-    'Pending',
-    'Completed'
-  ]; //TODO this will change
+  List<dynamic> statesAndCities = [];
+  String? selectedState;
+  String? selectedCity;
+  List<String> cities = [];
 
-  // Default value for dropdown
-  String? _selectedCategory; //TODO this will chamge too
+  @override
+  void initState() {
+    super.initState();
+    statesAndCities = jsonDecode(statesAndTheirCities);
+  }
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
@@ -44,6 +52,13 @@ class _SettingsState extends ConsumerState<Settings> {
   @override
   Widget build(BuildContext context) {
     final User? user = ref.watch(loginResponseProvider);
+
+    _usernameController.text = user?.fullName ?? "";
+    _emailController.text = user?.email ?? "";
+    _phoneController.text = user?.phone ?? "";
+    _addressController.text = user?.address ?? "";
+    selectedState = user?.state ?? "";
+    selectedCity = user?.city ?? "";
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: ScreenUtil().setHeight(6),
@@ -96,6 +111,7 @@ class _SettingsState extends ConsumerState<Settings> {
                           controller: _emailController,
                           height: 35.h,
                           inputType: TextInputType.emailAddress,
+                          maxLines: 2,
                         ),
                       ],
                     ),
@@ -126,7 +142,7 @@ class _SettingsState extends ConsumerState<Settings> {
               ),
               SizedBox(height: 18.h),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Expanded(
                     child: Column(
@@ -134,59 +150,32 @@ class _SettingsState extends ConsumerState<Settings> {
                       children: [
                         Container(
                           height: 40.h,
-                          width: 105.w,
+                          width: 145.w,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(1.0),
                             border: Border.all(color: Colors.grey),
                           ),
                           child: DropdownButton<String>(
+                            value: selectedState,
                             isExpanded: true,
-                            value: _selectedCategory,
-                            hint: const Text('Country'),
-                            icon: const Icon(IconsaxPlusBold.arrow_down),
-                            items: _categories.map((String item) {
-                              return DropdownMenuItem<String>(
-                                value: item,
-                                child: Text(item),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
+                            items: statesAndCities
+                                .map((state) => DropdownMenuItem<String>(
+                                      value: state['name'],
+                                      child: Text(state['name']),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
                               setState(() {
-                                _selectedCategory = newValue;
+                                selectedState = value;
+                                cities = statesAndCities
+                                    .firstWhere((state) =>
+                                        state['name'] == value)['cities']
+                                    .cast<String>();
+                                selectedCity = null; // Reset city selection
                               });
                             },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 40.h,
-                          width: 105.w,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(1.0),
-                            border: Border.all(color: Colors.grey),
-                          ),
-                          child: DropdownButton<String>(
-                            isExpanded: true,
-                            value: _selectedCategory,
                             hint: const Text('State'),
                             icon: const Icon(IconsaxPlusBold.arrow_down),
-                            items: _categories.map((String item) {
-                              return DropdownMenuItem<String>(
-                                value: item,
-                                child: Text(item),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedCategory = newValue;
-                              });
-                            },
                           ),
                         ),
                       ],
@@ -198,28 +187,27 @@ class _SettingsState extends ConsumerState<Settings> {
                       children: [
                         Container(
                           height: 40.h,
-                          width: 105.w,
+                          width: 145.w,
                           decoration: BoxDecoration(
-                            // color: Colors.white,
                             borderRadius: BorderRadius.circular(1.0),
                             border: Border.all(color: Colors.grey),
                           ),
                           child: DropdownButton<String>(
+                            value: selectedCity,
                             isExpanded: true,
-                            value: _selectedCategory,
-                            hint: const Text('City'),
-                            icon: const Icon(IconsaxPlusBold.arrow_down),
-                            items: _categories.map((String item) {
-                              return DropdownMenuItem<String>(
-                                value: item,
-                                child: Text(item),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
+                            items: cities
+                                .map((city) => DropdownMenuItem<String>(
+                                      value: city,
+                                      child: Text(city),
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
                               setState(() {
-                                _selectedCategory = newValue;
+                                selectedCity = value;
                               });
                             },
+                            hint: const Text('City'),
+                            icon: const Icon(IconsaxPlusBold.arrow_down),
                           ),
                         ),
                       ],
@@ -330,6 +318,14 @@ class _SettingsState extends ConsumerState<Settings> {
                 ),
               ),
               SizedBox(height: ScreenUtil().setHeight(5)),
+              TextButton(
+                onPressed: () async {
+                  await logout(ref);
+                  context.router.pushReplacementNamed(Pages.sellerlogin);
+                  ref.invalidate(pageIndexProvider);
+                },
+                child: Text("Log out"),
+              )
             ],
           ),
         ),

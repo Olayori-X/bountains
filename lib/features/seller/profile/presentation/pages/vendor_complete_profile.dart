@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bountains/core/extensions/build_context.dart';
@@ -7,7 +8,10 @@ import 'package:bountains/core/navigation/pages.dart';
 import 'package:bountains/core/network/token.dart';
 import 'package:bountains/core/provider/banks.dart';
 import 'package:bountains/core/provider/global.dart';
+import 'package:bountains/core/provider/states.dart';
 import 'package:bountains/core/ui/ui.dart';
+import 'package:bountains/core/widgets/loader.dart';
+import 'package:bountains/features/general/presentation/widgets/address_field.dart';
 import 'package:bountains/features/seller/profile/domain/usecases/complete_vendor_profile_usecase.dart';
 import 'package:bountains/features/seller/profile/presentation/functions/complete_vendor_profile.dart';
 import 'package:bountains/features/seller/profile/presentation/provider/complete_profile_provider.dart';
@@ -33,8 +37,10 @@ class _CompleteProfileState extends ConsumerState<CompleteProfile> {
     return BackButtonListener(
       onBackButtonPressed: () async {
         if (completeProfileProgress == 1.0) {
-          ref.read(completeProfileProgressProvider.notifier).state = 0.5;
-          print(completeProfileProgress);
+          ref.read(completeProfileProgressProvider.notifier).state = 0.66;
+          return true;
+        } else if (completeProfileProgress == 0.66) {
+          ref.read(completeProfileProgressProvider.notifier).state = 0.33;
           return true;
         }
 
@@ -63,8 +69,12 @@ class _CompleteProfileState extends ConsumerState<CompleteProfile> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (completeProfileProgress == 0.5) const _CompleteProfileOne(),
-                if (completeProfileProgress == 1.0) const _CompleteProfileTwo(),
+                if (completeProfileProgress == 0.33)
+                  const _CompleteProfileOne(),
+                if (completeProfileProgress == 0.66)
+                  const _CompleteProfileTwo(),
+                if (completeProfileProgress == 1.0)
+                  const _CompleteProfileThree(),
                 SizedBox(height: 10.h),
               ],
             ),
@@ -201,7 +211,7 @@ class _CompleteProfileOneState extends ConsumerState<_CompleteProfileOne> {
                 onPressed: () {
                   if (!validateProfileOneForm()) return;
                   ref.read(completeProfileProgressProvider.notifier).state =
-                      1.0;
+                      0.66;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.mainColor,
@@ -239,6 +249,265 @@ class _CompleteProfileTwo extends ConsumerStatefulWidget {
 }
 
 class _CompleteProfileTwoState extends ConsumerState<_CompleteProfileTwo> {
+  late TextEditingController addressController;
+  late TextEditingController accountNumberController;
+  List<dynamic> statesAndCities = [];
+  String? selectedState;
+  String? selectedCity;
+  List<String> cities = [];
+
+  final GlobalKey<FormState> formKey = GlobalKey();
+
+  late double generatedLatitude, generatedLongitude;
+
+  late FocusNode addressFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    statesAndCities = jsonDecode(statesAndTheirCities);
+    addressController = TextEditingController(text: ref.read(addressProvider));
+    generatedLatitude = 0;
+    generatedLongitude = 0;
+
+    addressFocusNode = FocusNode();
+
+    addressController.addListener(() {
+      String text = addressController.text;
+      ref.watch(addressProvider.notifier).state = text;
+      if (text.isEmpty) {
+        setState(() {
+          generatedLatitude = 0.0;
+          generatedLongitude = 0.0;
+        });
+      }
+      if (addressFocusNode.hasFocus) {
+        FocusScope.of(context).requestFocus(addressFocusNode);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    addressController.dispose();
+    accountNumberController.dispose();
+    super.dispose();
+  }
+
+  bool validateProfileTwoForm() {
+    FormState? formState = formKey.currentState;
+    print(formState);
+    if (formState == null) return false;
+    if (!formState.validate()) return false;
+    formState.save();
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: formKey,
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.9,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: 50.h),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "State",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontFamily: "Poppins",
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 5.0),
+                  Container(
+                    alignment: Alignment.center,
+                    height: 57.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 5,
+                          offset: Offset(4, 10),
+                        ),
+                      ],
+                    ),
+                    child: DropdownButtonFormField<String>(
+                      items: statesAndCities
+                          .map((state) => DropdownMenuItem<String>(
+                                value: state['name'],
+                                child: Text(state['name']),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedState = value;
+                          ref.watch(stateProvider.notifier).state = value!;
+                          cities = statesAndCities
+                              .firstWhere(
+                                  (state) => state['name'] == value)['cities']
+                              .cast<String>();
+                          selectedCity = cities[0];
+                        });
+                      },
+                      hint: const Text('State'),
+                      icon: const Icon(IconsaxPlusBold.arrow_down),
+                      style: const TextStyle(
+                        fontSize: 20.0,
+                        fontFamily: "Poppins",
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select an option';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 25.h),
+                  const Text(
+                    "City",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontFamily: "Poppins",
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 5.0),
+                  Container(
+                    alignment: Alignment.center,
+                    height: 57.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 5,
+                          offset: Offset(4, 10),
+                        ),
+                      ],
+                    ),
+                    child: DropdownButton<String>(
+                      value: selectedCity,
+                      isExpanded: true,
+                      items: cities
+                          .map((city) => DropdownMenuItem<String>(
+                                value: city,
+                                child: Text(city),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedCity = value;
+                          ref.watch(cityProvider.notifier).state = value!;
+                        });
+                      },
+                      hint: const Text('City'),
+                      icon: const Icon(IconsaxPlusBold.arrow_down),
+                    ),
+                  ),
+                  SizedBox(height: 25.h),
+                  const Text(
+                    "City",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontFamily: "Poppins",
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 5.0),
+                  Container(
+                    alignment: Alignment.center,
+                    height: 57.h,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.0),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 5,
+                          offset: Offset(4, 10),
+                        ),
+                      ],
+                    ),
+                    child: AddressAutocompleteField(
+                      controller: addressController,
+                      focus: addressFocusNode,
+                      onSelectCoordinates: (double latitude, double longitude) {
+                        setState(() {
+                          generatedLatitude = latitude;
+                          generatedLongitude = longitude;
+                        });
+                      },
+                      onSave: (String? value) {
+                        ref.watch(addressProvider.notifier).state = value ?? '';
+                        if (value == null) {
+                          setState(() {
+                            generatedLatitude = 0.0;
+                            generatedLongitude = 0.0;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (!validateProfileTwoForm()) return;
+                ref.read(completeProfileProgressProvider.notifier).state = 1.0;
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.mainColor,
+                textStyle: const TextStyle(color: Colors.white),
+                elevation: 0,
+                fixedSize: Size(MediaQuery.of(context).size.width * 0.9,
+                    MediaQuery.of(context).size.height * 0.08),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(5.0),
+                  ),
+                ),
+              ),
+              child: Text(
+                'Complete Profile',
+                style: AppTextStyles.buttonText.copyWith(
+                  color: AppColors.firstWhite,
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CompleteProfileThree extends ConsumerStatefulWidget {
+  const _CompleteProfileThree({super.key});
+
+  @override
+  ConsumerState<_CompleteProfileThree> createState() =>
+      _CompleteProfileThreeState();
+}
+
+class _CompleteProfileThreeState extends ConsumerState<_CompleteProfileThree> {
   late TextEditingController accountNameController;
   late TextEditingController accountNumberController;
 
@@ -261,7 +530,7 @@ class _CompleteProfileTwoState extends ConsumerState<_CompleteProfileTwo> {
     super.dispose();
   }
 
-  bool validateProfileTwoForm() {
+  bool validateProfileThreeForm() {
     FormState? formState = formKey.currentState;
     print(formState);
     if (formState == null) return false;
@@ -278,6 +547,10 @@ class _CompleteProfileTwoState extends ConsumerState<_CompleteProfileTwo> {
     String? bankName = ref.watch(bankNameProvider);
     String? imageFilePath = ref.watch(vendorImageFilePathProvider);
     String? bankCode = ref.watch(bankCodeProvider);
+    String address = ref.watch(addressProvider);
+    String state = ref.watch(stateProvider);
+    String street = ref.watch(streetProvider);
+    String city = ref.watch(cityProvider);
 
     completeVendorProfile(
       ref,
@@ -290,6 +563,10 @@ class _CompleteProfileTwoState extends ConsumerState<_CompleteProfileTwo> {
         picture: imageFilePath,
         description: description ?? "",
         vendorname: vendorName,
+        address: address,
+        state: state,
+        street: street,
+        city: city,
       ),
     );
   }
@@ -308,6 +585,7 @@ class _CompleteProfileTwoState extends ConsumerState<_CompleteProfileTwo> {
   @override
   Widget build(BuildContext context) {
     onProfileRegistrationStateChanged();
+    bool loading = ref.watch(completeProfileStateProvider) == AppState.loading;
     return Form(
       key: formKey,
       child: SizedBox(
@@ -317,84 +595,80 @@ class _CompleteProfileTwoState extends ConsumerState<_CompleteProfileTwo> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             SizedBox(height: 50.h),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  "Bank Name",
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontFamily: "Poppins",
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 5.0),
-                Container(
-                    alignment: Alignment.center,
-                    height: 57.h,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10.0),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 5,
-                          offset: Offset(4, 10),
-                        ),
-                      ],
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Bank Name",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontFamily: "Poppins",
+                      fontWeight: FontWeight.w600,
                     ),
-                    child: DropdownButtonFormField<String>(
-                      items: banks.keys.map((String bank) {
-                        return DropdownMenuItem<String>(
-                          value: bank,
-                          child: Text(bank),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        ref.watch(bankNameProvider.notifier).state = newValue;
-                        ref.watch(bankCodeProvider.notifier).state =
-                            banks[newValue];
-                        print(banks[newValue]);
-                      },
-                      style: const TextStyle(
-                        fontSize: 20.0,
-                        fontFamily: "Poppins",
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                  ),
+                  const SizedBox(height: 5.0),
+                  Container(
+                      alignment: Alignment.center,
+                      height: 57.h,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 5,
+                            offset: Offset(4, 10),
+                          ),
+                        ],
                       ),
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select an option';
-                        }
-                        return null;
-                      },
-                    )),
-                SizedBox(height: 25.h),
-                completeProfileTextField(
-                  label: "Account Number",
-                  controller: accountNumberController,
-                  height: 57.h,
-                  onChanged: (value) {
-                    ref.watch(accountNumberProvider.notifier).state = value;
-                  },
-                ),
-                SizedBox(height: 25.h),
-                completeProfileTextField(
-                  label: "Account Name",
-                  controller: accountNameController,
-                  height: 57.h,
-                  onChanged: (value) {
-                    ref.watch(accountNameProvider.notifier).state = value;
-                  },
-                ),
-              ],
+                      child: DropdownButtonFormField<String>(
+                        items: banks.keys.map((String bank) {
+                          return DropdownMenuItem<String>(
+                            value: bank,
+                            child: Text(bank),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          ref.watch(bankNameProvider.notifier).state = newValue;
+                          ref.watch(bankCodeProvider.notifier).state =
+                              banks[newValue];
+                          print(banks[newValue]);
+                        },
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select an option';
+                          }
+                          return null;
+                        },
+                      )),
+                  SizedBox(height: 25.h),
+                  completeProfileTextField(
+                    label: "Account Number",
+                    controller: accountNumberController,
+                    height: 57.h,
+                    onChanged: (value) {
+                      ref.watch(accountNumberProvider.notifier).state = value;
+                    },
+                  ),
+                  SizedBox(height: 25.h),
+                  completeProfileTextField(
+                    label: "Account Name",
+                    controller: accountNameController,
+                    height: 57.h,
+                    onChanged: (value) {
+                      ref.watch(accountNameProvider.notifier).state = value;
+                    },
+                  ),
+                ],
+              ),
             ),
             ElevatedButton(
               onPressed: () {
-                if (!validateProfileTwoForm()) return;
+                if (!validateProfileThreeForm()) return;
                 initiateProfileRegistrationProcess();
               },
               style: ElevatedButton.styleFrom(
@@ -409,12 +683,14 @@ class _CompleteProfileTwoState extends ConsumerState<_CompleteProfileTwo> {
                   ),
                 ),
               ),
-              child: Text(
-                'Complete Profile',
-                style: AppTextStyles.buttonText.copyWith(
-                  color: AppColors.firstWhite,
-                ),
-              ),
+              child: loading
+                  ? whiteLoader
+                  : Text(
+                      'Complete Profile',
+                      style: AppTextStyles.buttonText.copyWith(
+                        color: AppColors.firstWhite,
+                      ),
+                    ),
             )
           ],
         ),

@@ -1,9 +1,15 @@
 import 'package:bountains/core/ui/ui.dart';
+import 'package:bountains/features/seller/dashboard/presentation/functions/home.dart';
+import 'package:bountains/features/seller/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-PreferredSizeWidget dashboardAppBar(
-    {required String name, required bool available}) {
+PreferredSizeWidget dashboardAppBar({
+  required String name,
+  required bool available,
+  required WidgetRef ref,
+}) {
   return AppBar(
     backgroundColor: Colors.white,
     title: Text(
@@ -17,10 +23,11 @@ PreferredSizeWidget dashboardAppBar(
     actions: [
       ElevatedButton(
         onPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const DashBoard()),
-          // );
+          Future.delayed(Duration.zero, () {
+            ref.read(availabilityProvider.notifier).state =
+                !ref.read(availabilityProvider);
+            setAvailabilityStatus(ref);
+          });
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.mainColor,
@@ -39,10 +46,10 @@ PreferredSizeWidget dashboardAppBar(
             Icon(
               Icons.circle,
               size: 15.r,
-              color: available ? Colors.redAccent[700] : Colors.green,
+              color: available ? Colors.green : Colors.redAccent[700],
             ),
             Text(
-              available ? 'Check in' : "Check out",
+              available ? 'Check out' : "Check in",
               style: AppTextStyles.littlebuttonText.copyWith(
                 color: Colors.white,
               ),

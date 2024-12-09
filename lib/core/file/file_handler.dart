@@ -8,22 +8,38 @@ import 'package:shared_preferences/shared_preferences.dart';
 export 'package:file_picker/file_picker.dart' show FileType;
 
 class FileHandler {
-  static const String _authenticationEmailKey = "teacherBankEmail";
-  // static const String _authenticationPasswordKey = "teacherBankPassword";
+  static const String _authenticationEmailKey = "authenticationEmailKey";
+  static const String _authenticationPasswordKey = "authenticationPasswordKey";
+  static const String _authenticationAccessTokenKey =
+      "authenticationAccessTokenKey";
+  static const String _authenticationUserIdKey = "authenticationUserIdKey";
+  static const String _authenticationRoleKey = "authenticationRoleKey";
 
   // static Future<bool> get hasAuthDetails async {
   //   var result = await loadAuthDetails();
   //   return result != null;
   // }
 
+  //Login details for both email and password
   static Future<void> saveAuthDetails(Map<String, String>? auth) async {
     SharedPreferences instance = await SharedPreferences.getInstance();
     await instance.setString(
         _authenticationEmailKey, auth == null ? "" : auth["email"]!);
-    // await instance.setString(
-    //     _authenticationPasswordKey, auth == null ? "" : auth["password"]!);
+    await instance.setString(
+        _authenticationPasswordKey, auth == null ? "" : auth["password"]!);
   }
 
+  static Future<Map<String, String?>?> loadAuthDetails() async {
+    SharedPreferences instance = await SharedPreferences.getInstance();
+    String? email = instance.getString(_authenticationEmailKey);
+    String? password = instance.getString(_authenticationPasswordKey);
+    return {
+      "email": email,
+      "password": password,
+    };
+  }
+
+  //Login details for email only
   static Future<void> saveAuthEmail(String? authEmail) async {
     SharedPreferences instance = await SharedPreferences.getInstance();
     if (authEmail == null) {
@@ -39,6 +55,28 @@ class FileHandler {
     return email;
   }
 
+  //Dashboard Authentication Details
+  static Future<void> saveAuthDetailsDashboard(
+      Map<String, String>? auth) async {
+    SharedPreferences instance = await SharedPreferences.getInstance();
+    await instance.setString(_authenticationAccessTokenKey,
+        auth == null ? "" : auth["accessToken"]!);
+    await instance.setString(
+        _authenticationUserIdKey, auth == null ? "" : auth["userId"]!);
+    await instance.setString(
+        _authenticationRoleKey, auth == null ? "" : auth["role"]!);
+    print("AUths : ${instance.getString(_authenticationAccessTokenKey)}");
+  }
+
+  static Future<Map<String, String?>?> loadAuthDetailsDashboard() async {
+    SharedPreferences instance = await SharedPreferences.getInstance();
+    String? accessToken = instance.getString(_authenticationAccessTokenKey);
+    String? userid = instance.getString(_authenticationUserIdKey);
+    String? role = instance.getString(_authenticationRoleKey);
+    return {"accessToken": accessToken, "userid": userid, "role": role};
+  }
+
+  //Others
   static Future<void> saveString(String key, String value) async {
     SharedPreferences instance = await SharedPreferences.getInstance();
     await instance.setString(key, value);

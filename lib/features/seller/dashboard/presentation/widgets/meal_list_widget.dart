@@ -6,16 +6,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MealList extends ConsumerWidget {
-  final List<Meal> meals;
+  final List<Meal>? meals;
   const MealList({super.key, required this.meals});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView.separated(
-      itemCount: meals.length,
+      itemCount: meals?.length ?? 0,
       separatorBuilder: (context, index) => SizedBox(height: 2.h),
       itemBuilder: (context, index) {
-        final meal = meals[index];
+        final meal = meals?[index];
         return MealItem(
           data: meal,
         );
@@ -25,14 +25,87 @@ class MealList extends ConsumerWidget {
 }
 
 class MealItem extends StatelessWidget {
-  final Meal data;
+  final Meal? data;
 
   const MealItem({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) {
+            return AlertDialog(
+                // backgroundColor: AppColors.dialogColor,
+                // title: Text(
+                //   "Teacher ${isInList ? "Removed" : "Added"} Successfully",
+                //   style: AppTextStyles.h4Bold.copyWith(
+                //     color: AppColors.primary2Dark,
+                //   ),
+                // ),
+                // content: Text(
+                //   "This teacher was ${isInList ? "removed from" : "added to"} your list successfully.",
+                //   style: AppTextStyles.title2.copyWith(
+                //     color: AppColors.primary2Dark2,
+                //   ),
+                // ),
+                // actions: [
+                //   ElevatedButton(
+                //     onPressed: () {
+                //       Navigator.of(ctx).pop();
+                //       updateMatchedTeachers(
+                //         ref,
+                //         widget.teacherId,
+                //         widget.teacherProfile.name,
+                //         widget.teacherProfile.image,
+                //         widget.teacherProfile.id,
+                //         "pending",
+                //       );
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: AppColors.dialogColor,
+                //       shape: RoundedRectangleBorder(
+                //         side: BorderSide(
+                //           color: AppColors.primary,
+                //         ),
+                //         borderRadius: BorderRadius.circular(8.r),
+                //       ),
+                //       fixedSize: Size(120.w, 48.h),
+                //     ),
+                //     child: Text(
+                //       "Back",
+                //       style: AppTextStyles.title1Medium.copyWith(
+                //         color: AppColors.primary,
+                //       ),
+                //     ),
+                //   ),
+                //   TextButton(
+                //     onPressed: () {
+                //       Navigator.of(ctx).pop();
+                //       ref.watch(pageIndexProvider.notifier).state = 2;
+                //       context.router.pushNamed(Pages.schoolDashboard);
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: AppColors.primary1Normal,
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(8.r),
+                //       ),
+                //       fixedSize: Size(120.w, 48.h),
+                //     ),
+                //     child: Text(
+                //       "My List",
+                //       style: AppTextStyles.title1SemiBold.copyWith(
+                //         color: Colors.white,
+                //       ),
+                //     ),
+                //   ),
+                // ],
+                );
+          },
+        );
+      },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 10.w),
         height: 77.h,
@@ -52,10 +125,11 @@ class MealItem extends StatelessWidget {
             CircleAvatar(
               radius: 25,
               backgroundColor: Colors.grey[300],
-              backgroundImage: data.picture != null && data.picture!.isNotEmpty
-                  ? CachedNetworkImageProvider(data.picture!)
-                  : null,
-              child: data.picture == null || data.picture!.isEmpty
+              backgroundImage:
+                  data?.picture != null && data!.picture!.isNotEmpty
+                      ? CachedNetworkImageProvider(data!.picture!)
+                      : null,
+              child: data?.picture == null || data!.picture!.isEmpty
                   ? Icon(Icons.lunch_dining, color: Colors.grey[700])
                   : null,
             ),
@@ -68,14 +142,14 @@ class MealItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      data.meal,
+                      data!.meal,
                       style: AppTextStyles.title1Medium.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     SizedBox(height: ScreenUtil().setHeight(1)),
                     Text(
-                      data.quantityunit,
+                      data!.quantityunit,
                       style: AppTextStyles.title2.copyWith(
                         fontFamily: 'Poppins',
                       ),
@@ -84,7 +158,7 @@ class MealItem extends StatelessWidget {
                 ),
               ),
             ),
-            Text('${data.price}', style: AppTextStyles.title1Medium),
+            Text(data!.price, style: AppTextStyles.title1Medium),
           ],
         ),
       ),

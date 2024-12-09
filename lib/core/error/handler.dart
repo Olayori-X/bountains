@@ -4,19 +4,23 @@ import 'error.dart';
 BountainsError determineDioError(DioException e) {
   switch (e.type) {
     case DioExceptionType.badResponse:
-      Map<String, dynamic>? errorData = e.response?.data["error"];
-      if (errorData != null) {
-        List<String> errorMessages = [];
-        errorData.forEach((key, value) {
-          if (value is List) {
-            errorMessages.addAll(value.map((msg) => msg.toString()));
-          }
-        });
-
-        String formattedErrors = errorMessages.join(" ");
-        return BountainsError(message: formattedErrors);
+      if (e.response?.statusCode == 500) {
+        return BountainsError(message: "There was an error from the server");
       } else {
-        return BountainsError(message: e.response?.data["message"]);
+        Map<String, dynamic>? errorData = e.response?.data["error"];
+        if (errorData != null) {
+          List<String> errorMessages = [];
+          errorData.forEach((key, value) {
+            if (value is List) {
+              errorMessages.addAll(value.map((msg) => msg.toString()));
+            }
+          });
+
+          String formattedErrors = errorMessages.join(" ");
+          return BountainsError(message: formattedErrors);
+        } else {
+          return BountainsError(message: e.response?.data["message"]);
+        }
       }
     case DioExceptionType.connectionError:
       return BountainsError(

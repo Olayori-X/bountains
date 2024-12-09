@@ -4,18 +4,10 @@ class RegisterPayload {
   final String phone;
   final String password;
   final String passwordConfirmation;
-  final String address;
-  final String street;
-  final String city;
-  final String state;
 
   const RegisterPayload({
     required this.fullname,
     required this.passwordConfirmation,
-    required this.address,
-    required this.street,
-    required this.city,
-    required this.state,
     required this.email,
     required this.phone,
     required this.password,
@@ -28,10 +20,6 @@ class RegisterPayload {
       "phone": phone,
       "password": password,
       "password_confirmation": passwordConfirmation,
-      "address": address,
-      "street": street,
-      "city": city,
-      "state": state
     };
   }
 
@@ -42,10 +30,6 @@ class RegisterPayload {
       phone: map["phone"]!,
       password: map["password"]!,
       passwordConfirmation: map["passwordConfirmation"]!,
-      address: map["address"]!,
-      street: map["street"]!,
-      city: map["city"]!,
-      state: map["state"]!,
     );
   }
 }

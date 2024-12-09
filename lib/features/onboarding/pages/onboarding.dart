@@ -1,6 +1,12 @@
 import 'package:bountains/core/extensions/build_context.dart';
+import 'package:bountains/core/functions/error.dart';
 import 'package:bountains/core/navigation/pages.dart';
 import 'package:bountains/core/provider/global.dart';
+import 'package:bountains/core/ui/colors.dart';
+import 'package:bountains/features/general/domain/entities/user.dart';
+import 'package:bountains/features/general/presentation/functions/google_auth.dart';
+import 'package:bountains/features/general/presentation/providers/google_auth_provider.dart';
+import 'package:bountains/features/general/presentation/providers/login_provider.dart';
 import 'package:bountains/features/onboarding/provider/onboarding_provider.dart';
 import 'package:bountains/features/onboarding/widgets/onboarding_widget.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +72,7 @@ class _OnboardingFirstScreenState
 
   @override
   Widget build(BuildContext context) {
-    return OnboardingWidget(data: data);
+    return OnboardingWidget(data: data, loading: false);
   }
 }
 
@@ -93,25 +99,45 @@ class _OnboardingSecondScreenState
       firstbuttontext: "Sign up with Google",
       secondbuttontext: "Continue Manually",
       firstfunction: () {
-        context.router.pushNamed(Pages.sellerlogin);
+        initiateGoogleAuthProcess(ref);
       },
       secondfunction: () {
         if (ref.watch(accountTypeProvider.notifier).state == "Vendor")
           context.router.pushNamed(Pages.sellersignup);
-        // if(ref.watch(accountTypeProvider.notifier).state == "Buyer") context.router.pushNamed(Pages.sellersignup);
+        if (ref.watch(accountTypeProvider.notifier).state == "Buyer")
+          context.router.pushNamed(Pages.buyersignup);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(googleAuthStateProvider, (previous, next) {
+      if (next == AppState.error) {
+        showSnackBarWithMessage(
+            context, ref.watch(googleAuthErrorMessageProvider));
+      } else if (next == AppState.success) {
+        User user = ref.watch(loginResponseProvider)!;
+        showSnackBarWithMessage(
+          context,
+          "Welcome back, ${user.fullName}",
+          backgroundColor: AppColors.mainColor,
+        );
+        if (user.role == 'vendor') {
+          context.router.pushReplacementNamed(Pages.sellerDashboard);
+        } else {
+          context.router.pushReplacementNamed(Pages.buyerDashboard);
+        }
+      }
+    });
+    bool loading = ref.watch(googleAuthStateProvider) == AppState.loading;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: OnboardingWidget(data: data),
+      body: OnboardingWidget(data: data, loading: loading),
     );
   }
 }

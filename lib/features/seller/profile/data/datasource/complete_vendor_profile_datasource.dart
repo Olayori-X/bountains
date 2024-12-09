@@ -21,6 +21,12 @@ class CompleteVendorProfileRemoteDataSource
       "accountname": payload.accountname,
       "accountnumber": payload.accountnumber,
       "vendorname": payload.vendorname,
+      'address': payload.address,
+      'street': payload.state,
+      "city": payload.city,
+      "state": payload.state,
+      "latitude": GetIt.I<UserLocation>().latitude,
+      "longitude": GetIt.I<UserLocation>().longitude,
       "picture": await MultipartFile.fromFile(
         payload.picture,
         filename: 'profile_picture.jpg',

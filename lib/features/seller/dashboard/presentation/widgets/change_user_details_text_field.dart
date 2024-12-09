@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 Widget settingsTextField({
   required WidgetRef ref,
@@ -10,6 +11,7 @@ Widget settingsTextField({
   required TextEditingController controller,
   TextInputType inputType = TextInputType.text,
   // required StateProvider provider,
+  int? maxLines,
 }) {
   return Container(
     height: height,
@@ -20,13 +22,14 @@ Widget settingsTextField({
     ),
     child: TextFormField(
       controller: controller,
-      style: const TextStyle(
-        fontSize: 20.0,
+      maxLines: maxLines,
+      style: TextStyle(
+        fontSize: 20.sp,
         fontFamily: "Poppins",
         fontWeight: FontWeight.w600,
       ),
       decoration: InputDecoration(
-        labelText: labelText,
+        hintText: labelText,
         border: InputBorder.none,
       ),
       validator: (value) {

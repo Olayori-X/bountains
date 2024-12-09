@@ -1,16 +1,11 @@
-import 'package:bountains/features/seller/auth/data/models/verify_otp_model.dart';
-import 'package:bountains/features/seller/auth/domain/entities/user_credentials.dart';
+import 'package:bountains/features/general/data/models/verify_otp_model.dart';
+import 'package:bountains/features/general/domain/entities/user_credentials.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:bountains/core/provider/global.dart';
 export 'package:bountains/core/provider/global.dart';
 
 final StateProvider<double> signupProgressProvider =
     StateProvider((ref) => 0.5);
-final addressProvider = StateProvider<String>((ref) => '');
-final streetProvider = StateProvider<String>((ref) => '');
-final cityProvider = StateProvider<String>((ref) => '');
-final stateProvider = StateProvider<String>((ref) => '');
-final countryProvider = StateProvider<String>((ref) => '');
 final usernameProvider = StateProvider<String>((ref) => '');
 final emailProvider = StateProvider<String>((ref) => '');
 final phoneProvider = StateProvider<String>((ref) => '');

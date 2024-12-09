@@ -76,7 +76,6 @@ class _SellerSignUpState extends ConsumerState<SellerSignUp> {
               ),
             ),
             if (signupProgress == 0.5) const _StepOnePage(),
-            if (signupProgress == 1.0) const _StepTwoPage(),
             SizedBox(height: 10.h),
           ],
         ),
@@ -120,6 +119,36 @@ class _StepOnePageState extends ConsumerState<_StepOnePage> {
         TextEditingController(text: ref.read(passwordConfirmProvider));
   }
 
+  void initiateRegistrationProcess() {
+    String name = ref.watch(usernameProvider);
+    String phone = ref.watch(phoneProvider);
+    String email = ref.watch(emailProvider);
+    String password = ref.watch(passwordProvider);
+    String confirmpassword = ref.watch(passwordConfirmProvider);
+
+    manualRegister(
+      ref,
+      ManualRegisterParams(
+        fullname: name,
+        email: email,
+        phone: phone,
+        password: password,
+        passwordConfirmation: confirmpassword,
+      ),
+    );
+  }
+
+  void onRegistrationStateChanged() {
+    ref.listen(registerStateProvider, (previous, next) {
+      if (next == AppState.error) {
+        showSnackBarWithMessage(
+            context, ref.watch(registerErrorMessageProvider));
+      } else if (next == AppState.success) {
+        context.router.pushReplacementNamed(Pages.sellerVerification);
+      }
+    });
+  }
+
   @override
   void dispose() {
     usernameController.dispose();
@@ -140,6 +169,8 @@ class _StepOnePageState extends ConsumerState<_StepOnePage> {
 
   @override
   Widget build(BuildContext context) {
+    onRegistrationStateChanged();
+    bool loading = ref.watch(registerStateProvider) == AppState.loading;
     return SafeArea(
       child: Align(
         alignment: Alignment.bottomCenter,
@@ -232,9 +263,8 @@ class _StepOnePageState extends ConsumerState<_StepOnePage> {
                           const SizedBox(height: 32.0),
                           ElevatedButton(
                             onPressed: () {
-                              if (!validateSignupForm()) return;
-                              ref.read(signupProgressProvider.notifier).state =
-                                  1.0;
+                              if (loading || !validateSignupForm()) return;
+                              initiateRegistrationProcess();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.mainColor,
@@ -248,12 +278,14 @@ class _StepOnePageState extends ConsumerState<_StepOnePage> {
                                 ),
                               ),
                             ),
-                            child: Text(
-                              "Continue",
-                              style: AppTextStyles.buttonText.copyWith(
-                                color: AppColors.firstWhite,
-                              ),
-                            ),
+                            child: loading
+                                ? whiteLoader
+                                : Text(
+                                    "Sign up",
+                                    style: AppTextStyles.buttonText.copyWith(
+                                      color: AppColors.firstWhite,
+                                    ),
+                                  ),
                           ),
                           const SizedBox(height: 20.0),
                           Row(
@@ -261,7 +293,7 @@ class _StepOnePageState extends ConsumerState<_StepOnePage> {
                             children: [
                               Text(
                                 "Have an account already?",
-                                style: AppTextStyles.body1SemiBold.copyWith(
+                                style: AppTextStyles.title1Medium.copyWith(
                                   color: Colors.black,
                                 ),
                               ),
@@ -272,7 +304,7 @@ class _StepOnePageState extends ConsumerState<_StepOnePage> {
                                 },
                                 child: Text(
                                   "Log in",
-                                  style: AppTextStyles.body1SemiBold.copyWith(
+                                  style: AppTextStyles.title1Medium.copyWith(
                                     color: AppColors.mainColor,
                                   ),
                                 ),
@@ -284,191 +316,6 @@ class _StepOnePageState extends ConsumerState<_StepOnePage> {
                     )
                   ],
                 ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StepTwoPage extends ConsumerStatefulWidget {
-  const _StepTwoPage({super.key});
-
-  @override
-  _StepTwoPageState createState() => _StepTwoPageState();
-}
-
-class _StepTwoPageState extends ConsumerState<_StepTwoPage> {
-  late TextEditingController addressController;
-  late TextEditingController streetController;
-  late TextEditingController cityController;
-  late TextEditingController stateController;
-
-  final GlobalKey<FormState> formKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    addressController = TextEditingController(text: ref.read(addressProvider));
-    streetController = TextEditingController(text: ref.read(streetProvider));
-    cityController = TextEditingController(text: ref.read(cityProvider));
-    stateController = TextEditingController(text: ref.read(stateProvider));
-  }
-
-  @override
-  void dispose() {
-    addressController.dispose();
-    streetController.dispose();
-    cityController.dispose();
-    stateController.dispose();
-    super.dispose();
-  }
-
-  bool validateSignupForm() {
-    FormState? formState = formKey.currentState;
-    if (formState == null) return false;
-    if (!formState.validate()) return false;
-    formState.save();
-    return true;
-  }
-
-  void initiateRegistrationProcess() {
-    String name = ref.watch(usernameProvider);
-    String phone = ref.watch(phoneProvider);
-    String email = ref.watch(emailProvider);
-    String address = ref.watch(addressProvider);
-    String state = ref.watch(stateProvider);
-    String street = ref.watch(streetProvider);
-    String city = ref.watch(cityProvider);
-    String password = ref.watch(passwordProvider);
-    String confirmpassword = ref.watch(passwordConfirmProvider);
-
-    manualRegister(
-      ref,
-      ManualRegisterParams(
-        fullname: name,
-        email: email,
-        phone: phone,
-        address: address,
-        street: street,
-        city: city,
-        state: state,
-        password: password,
-        passwordConfirmation: confirmpassword,
-      ),
-    );
-  }
-
-  void onRegistrationStateChanged() {
-    ref.listen(registerStateProvider, (previous, next) {
-      if (next == AppState.error) {
-        showSnackBarWithMessage(
-            context, ref.watch(registerErrorMessageProvider));
-      } else if (next == AppState.success) {
-        context.router.pushReplacementNamed(Pages.sellerVerification);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    onRegistrationStateChanged();
-    bool loading = ref.watch(registerStateProvider) == AppState.loading;
-    return SafeArea(
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        heightFactor: 557.h,
-        child: SingleChildScrollView(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFFFFFFFF),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(35.0),
-                topRight: Radius.circular(35.0),
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: ScreenUtil().setWidth(10.0),
-                vertical: ScreenUtil().setHeight(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Sign Up",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 23.0,
-                      fontFamily: "Poppins",
-                    ),
-                  ),
-                  const SizedBox(height: 10.0),
-                  Form(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildTextField(
-                          label: "Address",
-                          controller: addressController,
-                          onChanged: (value) {
-                            ref.read(addressProvider.notifier).state = value;
-                          },
-                        ),
-                        buildTextField(
-                          label: "Street",
-                          controller: streetController,
-                          onChanged: (value) {
-                            ref.read(streetProvider.notifier).state = value;
-                          },
-                        ),
-                        buildTextField(
-                          label: "City",
-                          controller: cityController,
-                          onChanged: (value) {
-                            ref.read(cityProvider.notifier).state = value;
-                          },
-                        ),
-                        buildTextField(
-                          label: "State",
-                          controller: stateController,
-                          onChanged: (value) {
-                            ref.read(stateProvider.notifier).state = value;
-                          },
-                        ),
-                        const SizedBox(height: 32.0),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (loading || validateSignupForm()) return;
-                            initiateRegistrationProcess();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.mainColor,
-                            minimumSize: const Size(double.infinity, 60.0),
-                            shape: const BeveledRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(5.0),
-                              ),
-                            ),
-                          ),
-                          child: loading
-                              ? whiteLoader
-                              : Text(
-                                  "Sign Up",
-                                  style: TextStyle(
-                                    fontSize: 35.0,
-                                    fontFamily: "Poppins",
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.firstWhite,
-                                  ),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
             ),
           ),
