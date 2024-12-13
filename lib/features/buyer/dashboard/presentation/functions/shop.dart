@@ -25,6 +25,7 @@ Future<void> _getMealsForShopData(
   response.fold(
     (l) {
       ref.watch(mealForShopsProvider.notifier).state = l;
+      ref.watch(filteredMealForShopsProvider.notifier).state = l;
       print(l.toJson());
       isSuccess = true;
       ref.watch(mealForShopsStateProvider.notifier).state = AppState.success;

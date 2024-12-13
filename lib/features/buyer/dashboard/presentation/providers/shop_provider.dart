@@ -34,5 +34,8 @@ final StateProvider<AppState> mealForShopsStateProvider =
 final StateProvider<MealsForShopResponse?> mealForShopsProvider =
     StateProvider((ref) => null);
 
+final StateProvider<MealsForShopResponse?> filteredMealForShopsProvider =
+    StateProvider((ref) => null);
+
 final StateProvider<String> mealForShopsErrorMessageProvider =
     StateProvider((ref) => "");

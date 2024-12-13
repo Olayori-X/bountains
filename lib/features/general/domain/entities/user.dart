@@ -66,16 +66,16 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> map) {
     return User(
-      fullName: map["fullName"]!,
-      sellerid: map['id']!,
+      fullName: map["fullName"] ?? map['fullname'],
+      sellerid: map['id'] ?? map['sellerid'] ?? map['buyerid'],
       phone: map['phone']!,
       email: map['email']!,
       available: map['available'] ?? false,
       vendorName: map['vendorname'] ?? "",
       description: map['description'] ?? "",
-      accountname: map['accountname'],
-      bankName: map['bankname'],
-      bankCode: map['bankcode'],
+      accountname: map['accountname'] ?? "",
+      bankName: map['bankname'] ?? "",
+      bankCode: map['bankcode'] ?? "",
       accountNumber: map['accountnumber'],
       accBal: map['acc_bal'] ?? "0",
       address: map['address'] ?? "",
@@ -84,7 +84,7 @@ class User {
       state: map['state'] ?? "",
       picture: map['picture'] ?? "",
       isVerified: map['email_verified_at'],
-      role: map['role'],
+      role: map['role'] ?? "",
     );
   }
 }

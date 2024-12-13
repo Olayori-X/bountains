@@ -19,11 +19,11 @@ class RestaurantLayout extends ConsumerStatefulWidget {
 }
 
 class _RestaurantLayoutState extends ConsumerState<RestaurantLayout> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration.zero, () => getMealsForShopData(ref));
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   Future.delayed(Duration.zero, () => getMealsForShopData(ref));
+  // }
 
   void onMealStateChanged() {
     ref.listen(mealForShopsStateProvider, (previous, next) {
@@ -37,9 +37,9 @@ class _RestaurantLayoutState extends ConsumerState<RestaurantLayout> {
   @override
   Widget build(BuildContext context) {
     onMealStateChanged();
-    bool loading = mealForShopsStateProvider == AppState.loading;
-    final List<Vendors> vendors =
-        loading ? [] : ref.watch(mealForShopsProvider)?.vendors ?? [];
+    bool loading = ref.watch(mealForShopsStateProvider) == AppState.loading;
+    List<Vendors> vendors =
+        loading ? [] : ref.watch(filteredMealForShopsProvider)?.vendors ?? [];
 
     return RefreshIndicator(
       onRefresh: () async {

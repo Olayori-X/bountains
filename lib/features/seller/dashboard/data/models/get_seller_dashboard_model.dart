@@ -1,3 +1,5 @@
+import 'package:bountains/features/general/domain/entities/user.dart';
+
 class SellerDashboardPayload {
   final String userid;
 
@@ -26,6 +28,7 @@ class SellerDashboardResponse {
   final int completedorders;
   final int pendingorders;
   final int sales;
+  final User user;
 
   const SellerDashboardResponse({
     required this.fullname,
@@ -35,6 +38,7 @@ class SellerDashboardResponse {
     required this.completedorders,
     required this.pendingorders,
     required this.sales,
+    required this.user,
   });
 
   Map<String, dynamic> toJson() {
@@ -59,6 +63,7 @@ class SellerDashboardResponse {
       completedorders: map['completedorders'] ?? 0,
       pendingorders: map['pendingorders'] ?? 0,
       sales: map['sales'] ?? "",
+      user: User.fromJson(data),
     );
   }
 }

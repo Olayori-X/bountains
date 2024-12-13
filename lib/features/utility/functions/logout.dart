@@ -108,5 +108,5 @@ void logoutInvalidate(WidgetRef ref) {
   ref.invalidate(buyer_register.registerStateProvider);
   ref.invalidate(buyer_register.stateProvider);
   ref.invalidate(buyer_register.streetProvider);
-  // ref.invalidate(pageIndexProvider);
+  ref.invalidate(pageIndexProvider);
 }

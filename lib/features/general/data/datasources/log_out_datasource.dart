@@ -10,7 +10,7 @@ class LogOutRemoteDataSource implements LogOutDataSource {
   @override
   Future<bool> logout() async {
     String token = GetIt.I<AppTokens>().accessToken;
-    Response response = await dio.post(
+    await dio.post(
       "/logout",
       options: Options(
         headers: {

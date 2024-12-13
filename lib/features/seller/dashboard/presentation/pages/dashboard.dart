@@ -41,7 +41,9 @@ class _SellerDashboardState extends ConsumerState<SellerDashboard> {
 
     // Initialize availabilityProvider safely
     Future.microtask(() {
-      final bool available = ref.read(homeDataProvider)?.available ?? false;
+      final bool available = ref.read(loginResponseProvider) == null
+          ? ref.read(homeDataProvider)!.available
+          : ref.read(loginResponseProvider)!.available;
       ref.read(availabilityProvider.notifier).state = available;
     });
   }

@@ -1,8 +1,12 @@
 import 'package:bountains/core/ui/ui.dart';
+import 'package:bountains/features/buyer/dashboard/data/models/get_food_for_shop_model.dart';
+import 'package:bountains/features/buyer/dashboard/domain/entities/vendors.dart';
 import 'package:bountains/features/buyer/dashboard/presentation/pages/cart.dart';
 import 'package:bountains/features/buyer/dashboard/presentation/pages/settings.dart';
 import 'package:bountains/features/buyer/dashboard/presentation/pages/shop.dart';
+import 'package:bountains/features/buyer/dashboard/presentation/providers/shop_provider.dart';
 import 'package:bountains/features/general/presentation/functions/get_user_details.dart';
+import 'package:bountains/features/seller/dashboard/domain/entities/meal.dart';
 import 'package:bountains/features/seller/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +23,7 @@ class BuyerDashboard extends ConsumerStatefulWidget {
 class _BuyerDashboardState extends ConsumerState<BuyerDashboard> {
   late List<Widget> children;
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+  String searchFieldText = 'All';
 
   @override
   void initState() {
@@ -32,10 +37,51 @@ class _BuyerDashboardState extends ConsumerState<BuyerDashboard> {
   }
 
   final List<String> appBarText = ['Cart', 'Settings'];
+  void onChanged(String value) {
+    final MealsForShopResponse? mealsForShopResponse =
+        ref.watch(mealForShopsProvider);
+
+    final List<Meal>? allMeals = mealsForShopResponse?.meal;
+    final List<Vendors>? allVendors = mealsForShopResponse?.vendors;
+
+    if (value.trim().isEmpty) {
+      ref.watch(mealForShopsProvider.notifier).state = mealsForShopResponse;
+      return;
+    }
+
+    // Filter meals based on multiple properties
+    final List<Meal>? filteredMeals = allMeals?.where((meal) {
+      return (meal.category.toLowerCase().contains(value.toLowerCase())) ||
+          (meal.meal.toLowerCase().contains(value.toLowerCase())) ||
+          (meal.description.toLowerCase().contains(value.toLowerCase())) ||
+          (meal.price.toString().contains(value));
+    }).toList();
+
+    final List<Vendors>? filteredVendors = allVendors?.where((vendor) {
+      return (vendor.vendorName?.toLowerCase().contains(value.toLowerCase()) ??
+              false) ||
+          (vendor.state.toLowerCase().contains(value.toLowerCase())) ||
+          (vendor.address.toLowerCase().contains(value.toLowerCase())) ||
+          (vendor.city.toLowerCase().contains(value.toLowerCase())) ||
+          (vendor.street.toLowerCase().contains(value.toLowerCase()));
+    }).toList();
+
+    final MealsForShopResponse updatedResponse = MealsForShopResponse(
+      meal: filteredMeals ?? [],
+      vendors: filteredVendors ?? [],
+    );
+
+    ref.watch(filteredMealForShopsProvider.notifier).state = updatedResponse;
+  }
 
   @override
   Widget build(BuildContext context) {
     int index = ref.watch(pageIndexProvider);
+
+    if (index < 0 || index >= children.length) {
+      index = 0;
+    }
+
     return Scaffold(
       extendBody: index == 0,
       extendBodyBehindAppBar: index == 0,
@@ -57,6 +103,7 @@ class _BuyerDashboardState extends ConsumerState<BuyerDashboard> {
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
+                    onChanged: (value) => onChanged(value),
                   ),
                 ),
               )
@@ -81,8 +128,12 @@ class _BuyerDashboardState extends ConsumerState<BuyerDashboard> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: index,
-        onTap: (int newPage) =>
-            ref.watch(pageIndexProvider.notifier).state = newPage,
+        onTap: (int newPage) {
+          // Constrain newPage within valid range
+          if (newPage >= 0 && newPage < children.length) {
+            ref.watch(pageIndexProvider.notifier).state = newPage;
+          }
+        },
         backgroundColor: index == 0 ? Colors.transparent : null,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,

@@ -91,12 +91,19 @@ class LoginResponse {
     };
   }
 
-  static bool changeIntToBool(value) {
-    if (value == 1) {
-      return true;
-    } else {
+  static bool changeIntToBool(dynamic value) {
+    print('Received value: $value (${value.runtimeType})');
+    if (value == null) {
       return false;
     }
+
+    if (value == "1") {
+      print('Condition matched for true');
+      return true;
+    } else if (value == "0") {
+      return false;
+    }
+    return value as bool;
   }
 
   factory LoginResponse.fromJson(Map<String, dynamic> map) {

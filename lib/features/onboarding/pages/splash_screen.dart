@@ -6,6 +6,7 @@ import 'package:bountains/core/provider/global.dart';
 import 'package:bountains/core/ui/ui.dart';
 import 'package:bountains/features/onboarding/functions/background_log_in.dart';
 import 'package:bountains/features/onboarding/functions/background_login_sellers.dart';
+import 'package:bountains/features/seller/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:bountains/features/utility/functions/get_location.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,6 +62,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               ref.watch(accountTypeProvider.notifier).state =
                   sellersuccess ? 'Vendor' : "";
               print(sellersuccess);
+              print(ref.watch(dashboardErrorMessageProvider));
               destination =
                   sellersuccess ? Pages.sellerDashboard : Pages.sellerlogin;
             } else {

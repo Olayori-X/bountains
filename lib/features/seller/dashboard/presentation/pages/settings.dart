@@ -51,7 +51,8 @@ class _SettingsState extends ConsumerState<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    final User? user = ref.watch(loginResponseProvider);
+    final User? user =
+        ref.watch(loginResponseProvider) ?? ref.watch(homeDataProvider)?.user;
 
     _usernameController.text = user?.fullName ?? "";
     _emailController.text = user?.email ?? "";
@@ -322,7 +323,7 @@ class _SettingsState extends ConsumerState<Settings> {
                 onPressed: () async {
                   await logout(ref);
                   context.router.pushReplacementNamed(Pages.sellerlogin);
-                  ref.invalidate(pageIndexProvider);
+                  // ref.invalidate(pageIndexProvider);
                 },
                 child: Text("Log out"),
               )

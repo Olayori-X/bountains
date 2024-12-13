@@ -37,40 +37,47 @@ class _FoodShopState extends ConsumerState<FoodShop>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 152.h),
-      height: double.infinity,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: AppColors.shopColor,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(
-            child: TabBarView(
-              controller: controller,
-              children: children,
-            ),
-          ),
-          TabBar(
+    return RefreshIndicator(
+      onRefresh: () async {
+        await Future(() => getMealsForShopData(ref));
+      },
+      edgeOffset: 3.h,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: AppColors.shopColor,
+        ),
+        child: NestedScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return [
+              SliverAppBar(
+                backgroundColor: Colors.transparent,
+                pinned: true,
+                floating: true,
+                toolbarHeight: 0.0, // Hides default toolbar
+                bottom: TabBar(
+                  controller: controller,
+                  dividerColor: Colors.transparent,
+                  indicatorColor: Color(0xFFFFE6DB),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicatorWeight: 4.h,
+                  labelStyle: AppTextStyles.title1SemiBold,
+                  labelColor: Color(0xFFFFE6DB),
+                  unselectedLabelStyle: AppTextStyles.title1,
+                  unselectedLabelColor: Color(0xFFFFE6DB),
+                  tabs: const [
+                    Tab(text: 'Food'),
+                    Tab(text: 'Vendor'),
+                  ],
+                ),
+              ),
+            ];
+          },
+          body: TabBarView(
             controller: controller,
-            dividerColor: Colors.transparent,
-            indicatorColor: Color(0xFFFFE6DB),
-            indicatorSize: TabBarIndicatorSize.tab,
-            indicatorWeight: 4.h,
-            labelStyle: AppTextStyles.title1SemiBold,
-            labelColor: Color(0xFFFFE6DB),
-            unselectedLabelStyle: AppTextStyles.title1,
-            unselectedLabelColor: Color(0xFFFFE6DB),
-            tabs: const [
-              Tab(text: 'Food'),
-              Tab(text: 'Vendor'),
-            ],
+            children: children,
           ),
-          SizedBox(height: 80.h),
-        ],
+        ),
       ),
     );
   }

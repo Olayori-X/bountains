@@ -1,6 +1,5 @@
 import 'package:bountains/core/functions/error.dart';
 import 'package:bountains/core/provider/global.dart';
-import 'package:bountains/features/buyer/dashboard/data/models/get_food_for_shop_model.dart';
 import 'package:bountains/features/buyer/dashboard/presentation/functions/shop.dart';
 import 'package:bountains/features/buyer/dashboard/presentation/providers/shop_provider.dart';
 import 'package:bountains/features/seller/dashboard/domain/entities/meal.dart';
@@ -8,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class FoodLayout extends ConsumerStatefulWidget {
@@ -18,6 +18,8 @@ class FoodLayout extends ConsumerStatefulWidget {
 }
 
 class _FoodLayoutState extends ConsumerState<FoodLayout> {
+  final CardSwiperController controller = CardSwiperController();
+
   void onMealStateChanged() {
     ref.listen(mealForShopsStateProvider, (previous, next) {
       if (next == AppState.error) {
@@ -25,6 +27,17 @@ class _FoodLayoutState extends ConsumerState<FoodLayout> {
             context, ref.watch(mealForShopsErrorMessageProvider));
       }
     });
+  }
+
+  bool _onUndo(
+    int? previousIndex,
+    int currentIndex,
+    CardSwiperDirection direction,
+  ) {
+    debugPrint(
+      'The card $currentIndex was undod from the ${direction.name}',
+    );
+    return true;
   }
 
   void addMeal(Meal newMeal) {
@@ -35,16 +48,10 @@ class _FoodLayoutState extends ConsumerState<FoodLayout> {
     ref.watch(mealsProvider.notifier).update((state) => [...state, newMeal]);
   }
 
-  void removeMeal(Meal mealToRemove) {
-    final List<Meal>? allMeals = ref.watch(mealForShopsProvider)?.meal;
-
-    allMeals?.remove(mealToRemove);
-    final MealsForShopResponse updatedResponse = MealsForShopResponse(
-      meal: allMeals ?? [],
-      vendors: ref.watch(mealForShopsProvider)!.vendors,
-    );
-
-    ref.watch(mealForShopsProvider.notifier).state = updatedResponse;
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -54,6 +61,17 @@ class _FoodLayoutState extends ConsumerState<FoodLayout> {
 
     List<Meal> meals =
         loading ? [] : ref.watch(filteredMealForShopsProvider)?.meal ?? [];
+
+    bool onSwipe(
+      int previousIndex,
+      int? currentIndex,
+      CardSwiperDirection direction,
+    ) {
+      if (direction.name == "right") {
+        addMeal(meals[previousIndex]);
+      }
+      return true;
+    }
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -67,23 +85,21 @@ class _FoodLayoutState extends ConsumerState<FoodLayout> {
           : Skeletonizer(
               enabled: loading,
               child: Center(
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: meals.length,
-                  itemBuilder: (context, index) {
-                    return Dismissible(
-                      key: Key(meals[index].mealid),
-                      onDismissed: (direction) {
-                        addMeal(meals[index]);
-                        removeMeal(meals[index]);
-                      },
-                      direction: DismissDirection.up,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.w),
-                        child: FoodContainer(meal: meals[index]),
-                      ),
-                    );
+                child: CardSwiper(
+                  controller: controller,
+                  cardsCount: meals.length,
+                  cardBuilder:
+                      (context, index, percentThresholdX, percentThresholdY) {
+                    return FoodContainer(meal: meals[index]);
                   },
+                  numberOfCardsDisplayed: 1,
+                  scale: 0.5,
+                  isLoop: true,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
+                  duration: const Duration(milliseconds: 100),
+                  onSwipe: onSwipe,
+                  onUndo: _onUndo,
                 ),
               ),
             ),

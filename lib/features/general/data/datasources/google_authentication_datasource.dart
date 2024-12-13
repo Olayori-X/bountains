@@ -12,6 +12,7 @@ class GoogleAuthenticationRemoteDataSource
 
   @override
   Future<GoogleAuthResponse> signInWithGoogle() async {
+    await _googleSignIn.signOut();
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
     //todo You can try this out to see what the problem was
